@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bookstudio"
+version = "0.1.0"
+description = "HTML 기반 프레젠테이션/문서 에디터 엔진"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "Django>=3.2,<6.0",
+    "djangorestframework>=3.14",
+    "Pillow>=10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-django",
+    "factory-boy",
+]
+
+[tool.setuptools.packages.find]
+include = ["bookstudio*"]
