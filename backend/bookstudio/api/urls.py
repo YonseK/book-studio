@@ -20,6 +20,13 @@ from bookstudio.api.views.media import (
     MediaGalleryViewSet,
     PubItemViewSet,
 )
+from bookstudio.api.views.export import (
+    html_import_view,
+    html_export_page_view,
+    html_export_book_view,
+    pdf_export_page_view,
+    pdf_export_book_view,
+)
 
 app_name = "bookstudio"
 
@@ -70,4 +77,11 @@ urlpatterns = [
         "memos/<str:memo_pk>/",
         include((memo_router.urls, "memo-nested")),
     ),
+    # ──── HTML Import/Export ────
+    path("import/html/", html_import_view, name="html-import"),
+    path("export/html/page/<str:page_pk>/", html_export_page_view, name="html-export-page"),
+    path("export/html/edition/<str:edition_pk>/", html_export_book_view, name="html-export-book"),
+    # ──── PDF Export ────
+    path("export/pdf/page/<str:page_pk>/", pdf_export_page_view, name="pdf-export-page"),
+    path("export/pdf/book/<str:pub_book_pk>/", pdf_export_book_view, name="pdf-export-book"),
 ]
