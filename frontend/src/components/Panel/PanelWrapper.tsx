@@ -5,6 +5,8 @@ import type { Panel } from '../../types/panel'
 import { TextPanel } from './TextPanel'
 import { ImagePanel } from './ImagePanel'
 import { ShapePanel } from './ShapePanel'
+import { VideoPanel } from './VideoPanel'
+import { EmbedPanel } from './EmbedPanel'
 
 interface PanelWrapperProps {
   panel: Panel
@@ -102,6 +104,12 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
         return <ImagePanel panel={panel} />
       case 'SHA':
         return <ShapePanel panel={panel} />
+      case 'VOD':
+      case 'AUDIO':
+        return <VideoPanel panel={panel} />
+      case 'EV':
+      case 'WS':
+        return <EmbedPanel panel={panel} />
       default:
         return (
           <div style={{ padding: 8, fontSize: 12, color: '#999', textAlign: 'center' }}>

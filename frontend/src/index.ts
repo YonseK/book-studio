@@ -12,6 +12,8 @@ export { PanelWrapper } from './components/Panel/PanelWrapper'
 export { TextPanel } from './components/Panel/TextPanel'
 export { ImagePanel } from './components/Panel/ImagePanel'
 export { ShapePanel } from './components/Panel/ShapePanel'
+export { VideoPanel } from './components/Panel/VideoPanel'
+export { EmbedPanel } from './components/Panel/EmbedPanel'
 
 // ──── 도구 모음 ────
 export { ToolbarStrip } from './components/Toolbar/ToolbarStrip'
@@ -19,6 +21,15 @@ export { ToolbarStrip } from './components/Toolbar/ToolbarStrip'
 // ──── 사이드바 ────
 export { WallpaperBank } from './components/Sidebar/WallpaperBank'
 export { EditorOptions } from './components/Sidebar/EditorOptions'
+export { MediaBank } from './components/Sidebar/MediaBank'
+export { ItemBank } from './components/Sidebar/ItemBank'
+export { SharePanel } from './components/Sidebar/SharePanel'
+
+// ──── 뷰어 ────
+export { BookViewer } from './components/Viewer/BookViewer'
+
+// ──── Hooks ────
+export { useCollaboration } from './hooks/useCollaboration'
 
 // ──── 페이지 목록 ────
 export { PageListPanel } from './components/PageList/PageListPanel'
