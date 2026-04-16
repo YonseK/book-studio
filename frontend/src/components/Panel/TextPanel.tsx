@@ -1,15 +1,30 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import type { Panel } from '../../types/panel'
 import { useEditorStore } from '../../stores/editorStore'
 
 interface TextPanelProps {
   panel: Panel
   isHeadline?: boolean
+  isEditing?: boolean
 }
 
-export function TextPanel({ panel, isHeadline = false }: TextPanelProps) {
+export function TextPanel({ panel, isHeadline = false, isEditing = false }: TextPanelProps) {
   const updatePanel = useEditorStore((s) => s.updatePanel)
+  const ref = useRef<HTMLDivElement>(null)
   const text = isHeadline ? panel.headline : panel.text
+
+  // Auto-focus when entering edit mode
+  useEffect(() => {
+    if (isEditing && ref.current) {
+      ref.current.focus()
+      // Place cursor at end
+      const sel = window.getSelection()
+      if (sel && ref.current.childNodes.length > 0) {
+        sel.selectAllChildren(ref.current)
+        sel.collapseToEnd()
+      }
+    }
+  }, [isEditing])
 
   const textStyle: React.CSSProperties = {
     width: '100%',
@@ -31,6 +46,9 @@ export function TextPanel({ panel, isHeadline = false }: TextPanelProps) {
     resize: 'none',
     padding: 0,
     margin: 0,
+    cursor: isEditing ? 'text' : 'inherit',
+    userSelect: isEditing ? 'text' : 'none',
+    pointerEvents: isEditing ? 'auto' : 'none',
   }
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
@@ -40,8 +58,9 @@ export function TextPanel({ panel, isHeadline = false }: TextPanelProps) {
 
   return (
     <div
+      ref={ref}
       className={`bs-text-panel ${isHeadline ? 'bs-headline' : 'bs-body-text'}`}
-      contentEditable
+      contentEditable={isEditing}
       suppressContentEditableWarning
       onInput={handleInput}
       style={textStyle}

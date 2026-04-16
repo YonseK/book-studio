@@ -5,7 +5,7 @@ export type { BookStudioEditorProps } from './components/Editor/BookStudioEditor
 // ──── 에디터 컴포넌트 ────
 export { EditorLayout } from './components/Editor/EditorLayout'
 export { EditorCanvas } from './components/Editor/EditorCanvas'
-export { EditorHeader } from './components/Editor/EditorHeader'
+export { PositionBar } from './components/Editor/PositionBar'
 
 // ──── 패널 컴포넌트 ────
 export { PanelWrapper } from './components/Panel/PanelWrapper'
@@ -14,6 +14,9 @@ export { ImagePanel } from './components/Panel/ImagePanel'
 export { ShapePanel } from './components/Panel/ShapePanel'
 export { VideoPanel } from './components/Panel/VideoPanel'
 export { EmbedPanel } from './components/Panel/EmbedPanel'
+
+// ──── 앱 네비게이션 ────
+export { AppNav } from './components/AppNav/AppNav'
 
 // ──── 도구 모음 ────
 export { ToolbarStrip } from './components/Toolbar/ToolbarStrip'

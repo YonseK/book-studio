@@ -1,0 +1,59 @@
+/* BookStudio CSS Variables */
+
+.bs-theme-dark {
+  --bs-bg-primary: #1e1e1e;
+  --bs-bg-secondary: #252525;
+  --bs-bg-tertiary: #333333;
+  --bs-bg-canvas: #2f2f2f;
+  --bs-bg-hover: #3a3a3a;
+  --bs-bg-active: #444444;
+
+  --bs-text-primary: #e0e0e0;
+  --bs-text-secondary: #999999;
+  --bs-text-muted: #666666;
+
+  --bs-accent: #7cc576;
+  --bs-accent-hover: #6ab564;
+  --bs-accent-yellow: #e8c840;
+  --bs-danger: #e85050;
+
+  --bs-border: #3a3a3a;
+  --bs-border-light: #4a4a4a;
+
+  --bs-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --bs-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.bs-theme-light {
+  --bs-bg-primary: #ffffff;
+  --bs-bg-secondary: #f5f5f5;
+  --bs-bg-tertiary: #eeeeee;
+  --bs-bg-canvas: #e0e0e0;
+  --bs-bg-hover: #e8e8e8;
+  --bs-bg-active: #dddddd;
+
+  --bs-text-primary: #333333;
+  --bs-text-secondary: #666666;
+  --bs-text-muted: #999999;
+
+  --bs-accent: #5ea858;
+  --bs-accent-hover: #4e9848;
+  --bs-accent-yellow: #d4a830;
+  --bs-danger: #d04040;
+
+  --bs-border: #dddddd;
+  --bs-border-light: #cccccc;
+
+  --bs-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --bs-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Layout dimensions */
+:root {
+  --bs-appnav-width: 40px;
+  --bs-sidebar-width: 260px;
+  --bs-toolbar-width: 40px;
+  --bs-minibar-width: 40px;
+  --bs-pagelist-width: 200px;
+  --bs-topbar-height: 36px;
+}

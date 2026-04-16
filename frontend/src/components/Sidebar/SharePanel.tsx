@@ -1,101 +1,66 @@
 import React, { useState, useCallback } from 'react'
+import { Upload, FileDown, FileUp } from 'lucide-react'
 import type { BookStudioClient } from '../../api/restClient'
 import { useEditorStore } from '../../stores/editorStore'
 
 interface SharePanelProps {
-  client: BookStudioClient
+  client?: BookStudioClient
 }
 
 export function SharePanel({ client }: SharePanelProps) {
   const { book, edition } = useEditorStore()
-  const [exporting, setExporting] = useState(false)
   const [message, setMessage] = useState('')
 
   const handlePublish = useCallback(async () => {
-    if (!book) return
-    setExporting(true)
-    setMessage('')
+    if (!book || !client) {
+      setMessage('API client not available')
+      return
+    }
     try {
       await client.books.publish(book.id)
-      setMessage('Published successfully!')
-    } catch (e) {
-      setMessage('Publish failed.')
-    } finally {
-      setExporting(false)
+      setMessage('출판 완료!')
+    } catch {
+      setMessage('출판 실패.')
     }
   }, [book, client])
 
-  const handleExportHTML = useCallback(async () => {
-    if (!edition) return
-    setExporting(true)
-    try {
-      const data = await client.export.htmlBook(edition.id)
-      const blob = new Blob(
-        [JSON.stringify(data.pages, null, 2)],
-        { type: 'application/json' },
-      )
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${edition.title || 'book'}_html.json`
-      a.click()
-      URL.revokeObjectURL(url)
-    } finally {
-      setExporting(false)
-    }
-  }, [edition, client])
-
-  const handleImportHTML = useCallback(async () => {
-    if (!edition) return
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.html,.htm'
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return
-      const html = await file.text()
-      setExporting(true)
-      try {
-        await client.import.html(edition.id, html)
-        setMessage('Import successful! Reload to see pages.')
-      } catch {
-        setMessage('Import failed.')
-      } finally {
-        setExporting(false)
-      }
-    }
-    input.click()
-  }, [edition, client])
-
   return (
-    <div style={{ padding: 12 }}>
-      <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Share & Export</h3>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <button onClick={handlePublish} disabled={exporting} style={btnStyle}>
-          Publish
-        </button>
-        <button onClick={handleExportHTML} disabled={exporting} style={btnStyle}>
-          Export as HTML
-        </button>
-        <button onClick={handleImportHTML} disabled={exporting} style={btnStyle}>
-          Import HTML
+    <div>
+      <div className="bs-options__section">
+        <div className="bs-options__label">출판</div>
+        <button
+          className="bs-dropdown__item"
+          onClick={handlePublish}
+          style={{ width: '100%', borderRadius: 4, backgroundColor: 'var(--bs-bg-tertiary)' }}
+        >
+          <Upload size={14} strokeWidth={1.5} />
+          <span>게시된 책 버전 업데이트</span>
         </button>
       </div>
 
+      <div className="bs-options__section">
+        <div className="bs-options__label">내보내기 / 가져오기</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <button
+            className="bs-dropdown__item"
+            style={{ width: '100%', borderRadius: 4, backgroundColor: 'var(--bs-bg-tertiary)' }}
+          >
+            <FileDown size={14} strokeWidth={1.5} />
+            <span>HTML로 내보내기</span>
+          </button>
+          <button
+            className="bs-dropdown__item"
+            style={{ width: '100%', borderRadius: 4, backgroundColor: 'var(--bs-bg-tertiary)' }}
+          >
+            <FileUp size={14} strokeWidth={1.5} />
+            <span>HTML 가져오기</span>
+          </button>
+        </div>
+      </div>
+
       {message && (
-        <div style={{ marginTop: 8, fontSize: 12, color: '#4a90d9' }}>{message}</div>
+        <div style={{ marginTop: 8, fontSize: 12, color: 'var(--bs-accent)' }}>{message}</div>
       )}
     </div>
   )
-}
-
-const btnStyle: React.CSSProperties = {
-  padding: '8px 12px',
-  fontSize: 12,
-  border: '1px solid #ddd',
-  borderRadius: 4,
-  backgroundColor: '#fff',
-  cursor: 'pointer',
-  textAlign: 'left',
 }

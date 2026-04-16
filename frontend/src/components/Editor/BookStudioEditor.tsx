@@ -6,7 +6,8 @@ import type { BookStudioClient } from '../../api/restClient'
 import type { MediaType } from '../../types/panel'
 import { EditorLayout } from './EditorLayout'
 import { EditorCanvas } from './EditorCanvas'
-import { EditorHeader } from './EditorHeader'
+import { PositionBar } from './PositionBar'
+import { AppNav } from '../AppNav/AppNav'
 import { ToolbarStrip } from '../Toolbar/ToolbarStrip'
 import { PageListPanel } from '../PageList/PageListPanel'
 import { EditorOptions } from '../Sidebar/EditorOptions'
@@ -106,13 +107,19 @@ export function BookStudioEditor({ client, bookId, defaultLayout = 'PPTX_WIDE', 
 
   return (
     <EditorLayout
-      header={<EditorHeader />}
+      topbar={<PositionBar />}
+      appNav={<AppNav />}
       toolbar={<ToolbarStrip onAddPanel={handleAddPanel} />}
       sidebar={
-        <div>
-          <AspectRatioSelector />
-          <EditorOptions />
-        </div>
+        <>
+          <div className="bs-sidebar__header">
+            <span style={{ fontSize: 13, fontWeight: 600 }}>{edition?.title || 'Untitled'}</span>
+          </div>
+          <div className="bs-sidebar__content">
+            <AspectRatioSelector />
+            <EditorOptions />
+          </div>
+        </>
       }
       canvas={<EditorCanvas />}
       pageList={

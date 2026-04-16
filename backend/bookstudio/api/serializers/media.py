@@ -71,6 +71,8 @@ class PhotoUploadSerializer(serializers.ModelSerializer):
 
 class WallpaperImageSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    image_view_url = serializers.SerializerMethodField()
+    image_thumb_url = serializers.SerializerMethodField()
 
     class Meta:
         model = WallpaperImage
@@ -84,12 +86,22 @@ class WallpaperImageSerializer(serializers.ModelSerializer):
             "wallpaper_layout",
             "use_wallpaper",
             "image_url",
+            "image_view_url",
+            "image_thumb_url",
             "created_at",
         ]
         read_only_fields = ["id", "user", "width", "height", "created_at"]
 
     def get_image_url(self, obj):
         return obj.get_image_url()
+
+    def get_image_view_url(self, obj):
+        layout = obj.wallpaper_layout or "CD"
+        return obj.get_layout_image_url(layout, "view") or obj.get_image_url()
+
+    def get_image_thumb_url(self, obj):
+        layout = obj.wallpaper_layout or "CD"
+        return obj.get_layout_image_url(layout, "thumb") or obj.get_image_url()
 
 
 class WallpaperImageUploadSerializer(serializers.ModelSerializer):

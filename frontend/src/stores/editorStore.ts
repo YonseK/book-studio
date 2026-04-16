@@ -23,6 +23,10 @@ export interface EditorState {
   snapToGrid: boolean
   gridSize: number
   theme: 'light' | 'dark'
+  activeSidebarTab: 'file' | 'input' | 'options' | 'share'
+  sidebarContext: 'default' | 'text' | 'image' | 'wallpaper'
+  editingPanelId: string | null
+  isPageListCollapsed: boolean
 
   // 액션
   setBook: (book: Book) => void
@@ -46,6 +50,10 @@ export interface EditorState {
   toggleSnap: () => void
   setGridSize: (size: number) => void
   setTheme: (theme: 'light' | 'dark') => void
+  setActiveSidebarTab: (tab: 'file' | 'input' | 'options' | 'share') => void
+  setSidebarContext: (ctx: 'default' | 'text' | 'image' | 'wallpaper') => void
+  setEditingPanelId: (id: string | null) => void
+  togglePageList: () => void
 }
 
 export const useEditorStore = create<EditorState>()(
@@ -62,7 +70,11 @@ export const useEditorStore = create<EditorState>()(
     showGuides: true,
     snapToGrid: false,
     gridSize: 20,
-    theme: 'light',
+    theme: 'dark',
+    activeSidebarTab: 'options',
+    sidebarContext: 'wallpaper' as const,
+    editingPanelId: null,
+    isPageListCollapsed: false,
 
     setBook: (book) => set((s) => { s.book = book }),
     setEdition: (edition) => set((s) => { s.edition = edition }),
@@ -149,5 +161,9 @@ export const useEditorStore = create<EditorState>()(
     toggleSnap: () => set((s) => { s.snapToGrid = !s.snapToGrid }),
     setGridSize: (size) => set((s) => { s.gridSize = size }),
     setTheme: (theme) => set((s) => { s.theme = theme }),
+    setActiveSidebarTab: (tab) => set((s) => { s.activeSidebarTab = tab }),
+    setSidebarContext: (ctx) => set((s) => { s.sidebarContext = ctx }),
+    setEditingPanelId: (id) => set((s) => { s.editingPanelId = id }),
+    togglePageList: () => set((s) => { s.isPageListCollapsed = !s.isPageListCollapsed }),
   })),
 )

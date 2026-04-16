@@ -5,7 +5,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -17,14 +19,15 @@
     "react-dom": ">=18.0.0"
   },
   "dependencies": {
+    "@tiptap/extension-color": "^2.6.0",
+    "@tiptap/extension-text-align": "^2.6.0",
+    "@tiptap/extension-text-style": "^2.6.0",
+    "@tiptap/extension-underline": "^2.6.0",
     "@tiptap/react": "^2.6.0",
     "@tiptap/starter-kit": "^2.6.0",
-    "@tiptap/extension-text-align": "^2.6.0",
-    "@tiptap/extension-underline": "^2.6.0",
-    "@tiptap/extension-color": "^2.6.0",
-    "@tiptap/extension-text-style": "^2.6.0",
-    "zustand": "^5.0.0",
-    "immer": "^10.0.0"
+    "immer": "^10.0.0",
+    "lucide-react": "^1.8.0",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

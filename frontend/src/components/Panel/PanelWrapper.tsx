@@ -7,6 +7,7 @@ import { ImagePanel } from './ImagePanel'
 import { ShapePanel } from './ShapePanel'
 import { VideoPanel } from './VideoPanel'
 import { EmbedPanel } from './EmbedPanel'
+import { PanelContextMenu } from './PanelContextMenu'
 
 interface PanelWrapperProps {
   panel: Panel
@@ -16,18 +17,32 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
   const updatePanel = useEditorStore((s) => s.updatePanel)
   const { selectedPanelIds, select, toggleSelect, setDragging, setResizing } = useSelectionStore()
   const isSelected = selectedPanelIds.includes(panel.id)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
   const dragRef = useRef<{ startX: number; startY: number; origLeft: number; origTop: number } | null>(null)
-  const resizeRef = useRef<{ startX: number; startY: number; origW: number; origH: number } | null>(null)
+
+  const setSidebarContext = useEditorStore((s) => s.setSidebarContext)
+  const setEditingPanelId = useEditorStore((s) => s.setEditingPanelId)
+  const editingPanelId = useEditorStore((s) => s.editingPanelId)
+  const isEditing = editingPanelId === panel.id
 
   const handleMouseDown = useCallback(
     (e: MouseEvent) => {
+      if (isEditing) return // don't drag while editing text
       e.stopPropagation()
       if (e.shiftKey) {
         toggleSelect(panel.id)
       } else if (!isSelected) {
         select(panel.id)
       }
-      // 드래그 시작
+      // Switch sidebar context based on media type
+      const type = panel.media_type
+      if (type === 'TXT' || type === 'HL' || type === 'DOC') {
+        setSidebarContext('text')
+      } else if (type === 'IMG') {
+        setSidebarContext('image')
+      } else {
+        setSidebarContext('default')
+      }
       dragRef.current = {
         startX: e.clientX,
         startY: e.clientY,
@@ -59,29 +74,38 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
     [panel.id, panel.left, panel.top, isSelected, select, toggleSelect, updatePanel, setDragging],
   )
 
-  const handleResizeMouseDown = useCallback(
-    (e: MouseEvent) => {
+  const handleResize = useCallback(
+    (e: MouseEvent, direction: string) => {
       e.stopPropagation()
-      resizeRef.current = {
-        startX: e.clientX,
-        startY: e.clientY,
-        origW: panel.width,
-        origH: panel.height,
-      }
+      e.preventDefault()
+      const startX = e.clientX
+      const startY = e.clientY
+      const origW = panel.width
+      const origH = panel.height
+      const origLeft = panel.left
+      const origTop = panel.top
       setResizing(true)
 
       const handleMouseMove = (ev: globalThis.MouseEvent) => {
-        if (!resizeRef.current) return
-        const dx = ev.clientX - resizeRef.current.startX
-        const dy = ev.clientY - resizeRef.current.startY
-        updatePanel(panel.id, {
-          width: Math.max(20, resizeRef.current.origW + dx),
-          height: Math.max(20, resizeRef.current.origH + dy),
-        })
+        const dx = ev.clientX - startX
+        const dy = ev.clientY - startY
+        const updates: Partial<Panel> = {}
+
+        if (direction.includes('r')) updates.width = Math.max(20, origW + dx)
+        if (direction.includes('l')) {
+          updates.width = Math.max(20, origW - dx)
+          updates.left = origLeft + (origW - (updates.width ?? origW))
+        }
+        if (direction.includes('b')) updates.height = Math.max(20, origH + dy)
+        if (direction.includes('t')) {
+          updates.height = Math.max(20, origH - dy)
+          updates.top = origTop + (origH - (updates.height ?? origH))
+        }
+
+        updatePanel(panel.id, updates)
       }
 
       const handleMouseUp = () => {
-        resizeRef.current = null
         setResizing(false)
         window.removeEventListener('mousemove', handleMouseMove)
         window.removeEventListener('mouseup', handleMouseUp)
@@ -90,16 +114,16 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
       window.addEventListener('mousemove', handleMouseMove)
       window.addEventListener('mouseup', handleMouseUp)
     },
-    [panel.id, panel.width, panel.height, updatePanel, setResizing],
+    [panel.id, panel.width, panel.height, panel.left, panel.top, updatePanel, setResizing],
   )
 
   const renderContent = () => {
     switch (panel.media_type) {
       case 'TXT':
       case 'DOC':
-        return <TextPanel panel={panel} />
+        return <TextPanel panel={panel} isEditing={isEditing} />
       case 'HL':
-        return <TextPanel panel={panel} isHeadline />
+        return <TextPanel panel={panel} isHeadline isEditing={isEditing} />
       case 'IMG':
         return <ImagePanel panel={panel} />
       case 'SHA':
@@ -119,13 +143,35 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
     }
   }
 
+  const handleDoubleClick = useCallback((e: MouseEvent) => {
+    e.stopPropagation()
+    const type = panel.media_type
+    if (type === 'TXT' || type === 'HL' || type === 'DOC') {
+      setEditingPanelId(panel.id)
+      setSidebarContext('text')
+    }
+  }, [panel.id, panel.media_type, setEditingPanelId, setSidebarContext])
+
+  const handleContextMenu = useCallback((e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!isSelected) select(panel.id)
+    setContextMenu({ x: e.clientX, y: e.clientY })
+  }, [isSelected, select, panel.id])
+
+  const removePanel = useEditorStore((s) => s.removePanel)
+  const addPanel = useEditorStore((s) => s.addPanel)
+
+  const className = `bs-panel${isSelected ? ' bs-panel--selected' : ''}`
+
   return (
     <div
-      className="bs-panel-wrapper"
+      className={className}
       data-panel-id={panel.id}
       onMouseDown={handleMouseDown}
+      onDoubleClick={handleDoubleClick}
+      onContextMenu={handleContextMenu}
       style={{
-        position: 'absolute',
         left: panel.left,
         top: panel.top,
         width: panel.width,
@@ -133,9 +179,6 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
         zIndex: panel.z_index,
         opacity: panel.opacity,
         transform: panel.rotate ? `rotate(${panel.rotate}deg)` : undefined,
-        border: isSelected ? '2px solid #4a90d9' : '1px solid transparent',
-        cursor: 'move',
-        boxSizing: 'border-box',
         borderRadius: panel.border_radius || 0,
         backgroundColor: panel.background_color !== 'transparent' ? panel.background_color : undefined,
         padding: panel.padding,
@@ -144,20 +187,33 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
     >
       {renderContent()}
 
-      {/* 리사이즈 핸들 */}
       {isSelected && (
-        <div
-          onMouseDown={handleResizeMouseDown}
-          style={{
-            position: 'absolute',
-            right: -4,
-            bottom: -4,
-            width: 8,
-            height: 8,
-            backgroundColor: '#4a90d9',
-            cursor: 'se-resize',
-            borderRadius: 2,
+        <>
+          <div className="bs-handle bs-handle--corner bs-handle--tl" onMouseDown={(e) => handleResize(e, 'tl')} />
+          <div className="bs-handle bs-handle--corner bs-handle--tr" onMouseDown={(e) => handleResize(e, 'tr')} />
+          <div className="bs-handle bs-handle--corner bs-handle--bl" onMouseDown={(e) => handleResize(e, 'bl')} />
+          <div className="bs-handle bs-handle--corner bs-handle--br" onMouseDown={(e) => handleResize(e, 'br')} />
+          <div className="bs-handle bs-handle--edge-h bs-handle--mt" onMouseDown={(e) => handleResize(e, 't')} />
+          <div className="bs-handle bs-handle--edge-h bs-handle--mb" onMouseDown={(e) => handleResize(e, 'b')} />
+          <div className="bs-handle bs-handle--edge-v bs-handle--ml" onMouseDown={(e) => handleResize(e, 'l')} />
+          <div className="bs-handle bs-handle--edge-v bs-handle--mr" onMouseDown={(e) => handleResize(e, 'r')} />
+        </>
+      )}
+
+      {contextMenu && (
+        <PanelContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          onDuplicate={() => {
+            const id = `panel-dup-${Date.now()}`
+            addPanel({ ...panel, id, left: panel.left + 20, top: panel.top + 20 })
           }}
+          onDelete={() => removePanel(panel.id)}
+          onBringForward={() => updatePanel(panel.id, { z_index: panel.z_index + 1 })}
+          onSendBackward={() => updatePanel(panel.id, { z_index: Math.max(0, panel.z_index - 1) })}
+          onToggleLock={() => updatePanel(panel.id, { fixed: !panel.fixed })}
+          isLocked={panel.fixed}
         />
       )}
     </div>

@@ -5,9 +5,11 @@ import { PanelWrapper } from '../Panel/PanelWrapper'
 import { GridOverlay } from '../common/GridOverlay'
 
 export function EditorCanvas() {
-  const { layoutConfig, zoom, setZoom, activePageId, panels, pages, showGrid, gridSize, showGuides } =
+  const { layoutConfig, zoom, setZoom, activePageId, panels, pages, showGrid, gridSize } =
     useEditorStore()
   const clearSelection = useSelectionStore((s) => s.clearSelection)
+  const setSidebarContext = useEditorStore((s) => s.setSidebarContext)
+  const setEditingPanelId = useEditorStore((s) => s.setEditingPanelId)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const activePage = pages.find((p) => p.id === activePageId)
@@ -28,6 +30,8 @@ export function EditorCanvas() {
     (e: MouseEvent) => {
       if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('bs-canvas-page')) {
         clearSelection()
+        setSidebarContext('wallpaper')
+        setEditingPanelId(null)
       }
     },
     [clearSelection],
@@ -39,6 +43,11 @@ export function EditorCanvas() {
     ? {
         backgroundColor: activePage.background_color,
         opacity: activePage.opacity,
+        ...(activePage.background_type === 'WP' && activePage.wallpaper_image ? {
+          backgroundImage: `url(${activePage.wallpaper_image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: `${activePage.background_position_x}% ${activePage.background_position_y}%`,
+        } : {}),
       }
     : { backgroundColor: '#ffffff' }
 
@@ -48,23 +57,14 @@ export function EditorCanvas() {
       className="bs-canvas-container"
       onWheel={handleWheel}
       onClick={handleCanvasClick}
-      style={{
-        position: 'relative',
-        padding: 40,
-        cursor: 'default',
-      }}
     >
       <div
         className="bs-canvas-page"
         style={{
-          position: 'relative',
           width,
           height,
           transform: `scale(${zoom})`,
           transformOrigin: 'center center',
-          boxShadow: '0 2px 20px rgba(0,0,0,0.15)',
-          borderRadius: 2,
-          overflow: 'hidden',
           ...bgStyle,
         }}
       >
