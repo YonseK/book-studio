@@ -39,17 +39,9 @@ export function EditorCanvas() {
 
   const { width, height } = layoutConfig
 
-  const bgStyle: React.CSSProperties = activePage
-    ? {
-        backgroundColor: activePage.background_color,
-        opacity: activePage.opacity,
-        ...(activePage.background_type === 'WP' && activePage.wallpaper_image ? {
-          backgroundImage: `url(${activePage.wallpaper_image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: `${activePage.background_position_x}% ${activePage.background_position_y}%`,
-        } : {}),
-      }
-    : { backgroundColor: '#ffffff' }
+  const bgOpacity = activePage?.opacity ?? 1
+  const isTransparent = activePage?.background_color === 'transparent'
+  const showCheckerboard = isTransparent || bgOpacity < 1
 
   return (
     <div
@@ -65,9 +57,30 @@ export function EditorCanvas() {
           height,
           transform: `scale(${zoom})`,
           transformOrigin: 'center center',
-          ...bgStyle,
+          position: 'relative',
         }}
       >
+        {/* Checkerboard layer for transparent background */}
+        {showCheckerboard && (
+          <div className="bs-canvas-checkerboard" style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+          }} />
+        )}
+        {/* Background layer with opacity — does not affect content */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          ...(isTransparent ? {} : { backgroundColor: activePage?.background_color || '#ffffff' }),
+          opacity: bgOpacity,
+          ...(activePage?.background_type === 'WP' && activePage.wallpaper_image ? {
+            backgroundImage: `url(${activePage.wallpaper_image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: `${activePage.background_position_x}% ${activePage.background_position_y}%`,
+          } : {}),
+          pointerEvents: 'none',
+        }} />
         {showGrid && <GridOverlay width={width} height={height} gridSize={gridSize} />}
         {activePanels
           .filter((p) => p.is_active && !p.fields_data?.deleted)
