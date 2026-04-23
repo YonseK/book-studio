@@ -1,13 +1,13 @@
 import React, { useRef, useCallback, type WheelEvent, type MouseEvent } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
-import { useSelectionStore } from '../../stores/selectionStore'
 import { PanelWrapper } from '../Panel/PanelWrapper'
 import { GridOverlay } from '../common/GridOverlay'
+import { GuideLines } from '../common/GuideLines'
 
 export function EditorCanvas() {
   const { layoutConfig, zoom, setZoom, activePageId, panels, pages, showGrid, gridSize } =
     useEditorStore()
-  const clearSelection = useSelectionStore((s) => s.clearSelection)
+  const clearSelection = useEditorStore((s) => s.clearSelection)
   const setSidebarContext = useEditorStore((s) => s.setSidebarContext)
   const setEditingPanelId = useEditorStore((s) => s.setEditingPanelId)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -82,6 +82,7 @@ export function EditorCanvas() {
           pointerEvents: 'none',
         }} />
         {showGrid && <GridOverlay width={width} height={height} gridSize={gridSize} />}
+        <GuideLines />
         {activePanels
           .filter((p) => p.is_active && !p.fields_data?.deleted)
           .sort((a, b) => a.z_index - b.z_index)

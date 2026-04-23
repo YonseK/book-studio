@@ -1,0 +1,7 @@
+/* BookStudio Font Loading — UI + Content Fonts */
+
+/* UI fonts (original Bookooroo equivalents) */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Sans+KR:wght@100;400;500;700;900&family=Roboto:wght@100;400;500;700;900&family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&display=swap');
+
+/* Content fonts (for book editor text panels) */
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Nanum+Brush+Script&family=Nanum+Pen+Script&family=Montserrat:wght@100;400;900&family=Anton&family=Lobster&family=Playball&family=Monoton&display=swap');

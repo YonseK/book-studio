@@ -8,6 +8,7 @@ import { SharePanel } from './SharePanel'
 import { WallpaperBank } from './WallpaperBank'
 import { TextBank } from './TextBank'
 import { ImageBankPanel } from './ImageBankPanel'
+import { ShapeBankPanel } from './ShapeBankPanel'
 
 const TABS = [
   { key: 'file' as const, label: '파일', icon: File },
@@ -53,6 +54,7 @@ export function SidebarTabs(props: SidebarTabsProps) {
   // Context bank header label
   const contextLabel = sidebarContext === 'text' ? '텍스트 편집'
     : sidebarContext === 'image' ? '이미지 편집'
+    : sidebarContext === 'shape' ? '도형 편집'
     : sidebarContext === 'wallpaper' ? '월페이퍼 뱅크'
     : null
 
@@ -62,7 +64,12 @@ export function SidebarTabs(props: SidebarTabsProps) {
       <div className="bs-sidebar__header">
         <input
           className="bs-sidebar__title-input"
-          defaultValue={edition?.title || ''}
+          value={edition?.title || ''}
+          onChange={(e) => {
+            if (edition) {
+              useEditorStore.getState().setEdition({ ...edition, title: e.target.value })
+            }
+          }}
           placeholder="제목 없음"
         />
       </div>
@@ -120,6 +127,17 @@ export function SidebarTabs(props: SidebarTabsProps) {
               {contextLabel}
             </div>
             <ImageBankPanel />
+          </>
+        ) : sidebarContext === 'shape' ? (
+          <>
+            <div style={{
+              fontSize: 12, fontWeight: 600, color: 'var(--bs-accent)',
+              marginBottom: 12, paddingBottom: 8,
+              borderBottom: '1px solid var(--bs-border)',
+            }}>
+              {contextLabel}
+            </div>
+            <ShapeBankPanel />
           </>
         ) : sidebarContext === 'wallpaper' ? (
           <>

@@ -108,8 +108,13 @@ export function BookStudioEditor({ client, bookId, defaultLayout = 'PPTX_WIDE', 
   return (
     <EditorLayout
       topbar={<PositionBar />}
-      appNav={<AppNav />}
-      toolbar={<ToolbarStrip onAddPanel={handleAddPanel} />}
+      iconMenu={
+        <>
+          <AppNav />
+          <div className="bs-iconmenu__separator" />
+          <ToolbarStrip onAddPanel={handleAddPanel} />
+        </>
+      }
       sidebar={
         <>
           <div className="bs-sidebar__header">

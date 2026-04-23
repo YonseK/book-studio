@@ -3,7 +3,7 @@ import { useEditorStore } from '../../stores/editorStore'
 import { AspectRatioSelector } from '../common/AspectRatioSelector'
 
 export function BookInfoPanel() {
-  const { edition, book } = useEditorStore()
+  const { edition, book, setEdition, setBook } = useEditorStore()
 
   return (
     <div>
@@ -11,7 +11,12 @@ export function BookInfoPanel() {
         <div className="bs-options__label">제목</div>
         <input
           type="text"
-          defaultValue={edition?.title || ''}
+          value={edition?.title || ''}
+          onChange={(e) => {
+            if (edition) {
+              setEdition({ ...edition, title: e.target.value })
+            }
+          }}
           placeholder="제목 없음"
           style={{
             width: '100%',
@@ -27,7 +32,12 @@ export function BookInfoPanel() {
       <div className="bs-options__section">
         <div className="bs-options__label">설명</div>
         <textarea
-          defaultValue={edition?.description || ''}
+          value={edition?.description || ''}
+          onChange={(e) => {
+            if (edition) {
+              setEdition({ ...edition, description: e.target.value })
+            }
+          }}
           placeholder="설명을 입력하세요"
           rows={3}
           style={{
@@ -49,7 +59,12 @@ export function BookInfoPanel() {
       <div className="bs-options__section">
         <div className="bs-options__label">공개 설정</div>
         <select
-          defaultValue={book?.privacy || 'PRIVATE'}
+          value={book?.privacy || 'PRIVATE'}
+          onChange={(e) => {
+            if (book) {
+              setBook({ ...book, privacy: e.target.value as 'PRIVATE' | 'PUBLIC' | 'FRIENDS' })
+            }
+          }}
           style={{
             width: '100%',
             height: 32,

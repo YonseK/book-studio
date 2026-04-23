@@ -1,12 +1,20 @@
 import React, { useCallback } from 'react'
-import { Upload, Circle, Square, RotateCw } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { useEditorStore } from '../../stores/editorStore'
-import { useSelectionStore } from '../../stores/selectionStore'
 import type { Panel } from '../../types/panel'
+
+const MASK_OPTIONS: { value: string; label: string; icon: React.ReactNode }[] = [
+  { value: 'none', label: '없음', icon: <svg viewBox="0 0 24 24" width={20} height={20}><rect x="2" y="2" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg> },
+  { value: 'CIRCLE', label: '원형', icon: <svg viewBox="0 0 24 24" width={20} height={20}><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg> },
+  { value: 'TOP_LINEAR', label: '위→아래', icon: <svg viewBox="0 0 24 24" width={20} height={20}><defs><linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity="0" /><stop offset="1" stopColor="currentColor" stopOpacity="1" /></linearGradient></defs><rect x="2" y="2" width="20" height="20" fill="url(#mt)" /></svg> },
+  { value: 'BOTTOM_LINEAR', label: '아래→위', icon: <svg viewBox="0 0 24 24" width={20} height={20}><defs><linearGradient id="mb" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="currentColor" stopOpacity="0" /><stop offset="1" stopColor="currentColor" stopOpacity="1" /></linearGradient></defs><rect x="2" y="2" width="20" height="20" fill="url(#mb)" /></svg> },
+  { value: 'LEFT_LINEAR', label: '좌→우', icon: <svg viewBox="0 0 24 24" width={20} height={20}><defs><linearGradient id="ml" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="currentColor" stopOpacity="0" /><stop offset="1" stopColor="currentColor" stopOpacity="1" /></linearGradient></defs><rect x="2" y="2" width="20" height="20" fill="url(#ml)" /></svg> },
+  { value: 'RIGHT_LINEAR', label: '우→좌', icon: <svg viewBox="0 0 24 24" width={20} height={20}><defs><linearGradient id="mr" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stopColor="currentColor" stopOpacity="0" /><stop offset="1" stopColor="currentColor" stopOpacity="1" /></linearGradient></defs><rect x="2" y="2" width="20" height="20" fill="url(#mr)" /></svg> },
+]
 
 export function ImageBankPanel() {
   const { panels, activePageId, updatePanel } = useEditorStore()
-  const { selectedPanelIds } = useSelectionStore()
+  const selectedPanelIds = useEditorStore((s) => s.selectedPanelIds)
   const activePanels = activePageId ? (panels[activePageId] ?? []) : []
   const panel = activePanels.find((p) => selectedPanelIds.includes(p.id))
 
@@ -66,6 +74,34 @@ export function ImageBankPanel() {
             fontSize: 12, color: 'var(--bs-text-primary)',
           }}
         />
+      </div>
+
+      {/* Image Mask */}
+      <div className="bs-options__section">
+        <div className="bs-options__label">이미지 마스크</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {MASK_OPTIONS.map((opt) => {
+            const isActive = (panel.masked_image || 'none') === opt.value
+            return (
+              <button
+                key={opt.value}
+                onClick={() => update({ masked_image: opt.value === 'none' ? null : opt.value })}
+                title={opt.label}
+                style={{
+                  width: 36, height: 36,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: isActive ? 'var(--bs-bg-hover)' : 'var(--bs-bg-tertiary)',
+                  border: isActive ? '2px solid var(--bs-accent)' : '2px solid transparent',
+                  borderRadius: 4, cursor: 'pointer',
+                  color: isActive ? 'var(--bs-accent)' : 'var(--bs-text-secondary)',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {opt.icon}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Border Radius */}

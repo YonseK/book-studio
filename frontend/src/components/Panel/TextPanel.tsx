@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useCallback, memo } from 'react'
 import type { Panel } from '../../types/panel'
 import { useEditorStore } from '../../stores/editorStore'
 
@@ -8,16 +8,31 @@ interface TextPanelProps {
   isEditing?: boolean
 }
 
-export function TextPanel({ panel, isHeadline = false, isEditing = false }: TextPanelProps) {
+export const TextPanel = memo(function TextPanel({ panel, isHeadline = false, isEditing = false }: TextPanelProps) {
   const updatePanel = useEditorStore((s) => s.updatePanel)
   const ref = useRef<HTMLDivElement>(null)
+  const initializedRef = useRef(false)
   const text = isHeadline ? panel.headline : panel.text
+
+  // Set initial HTML content once
+  useEffect(() => {
+    if (ref.current && !initializedRef.current) {
+      ref.current.innerHTML = text
+      initializedRef.current = true
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync content when panel changes externally (not during editing)
+  useEffect(() => {
+    if (!isEditing && ref.current) {
+      ref.current.innerHTML = text
+    }
+  }, [text, isEditing])
 
   // Auto-focus when entering edit mode
   useEffect(() => {
     if (isEditing && ref.current) {
       ref.current.focus()
-      // Place cursor at end
       const sel = window.getSelection()
       if (sel && ref.current.childNodes.length > 0) {
         sel.selectAllChildren(ref.current)
@@ -25,6 +40,11 @@ export function TextPanel({ panel, isHeadline = false, isEditing = false }: Text
       }
     }
   }, [isEditing])
+
+  const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
+    const content = e.currentTarget.innerHTML
+    updatePanel(panel.id, isHeadline ? { headline: content } : { text: content })
+  }, [panel.id, isHeadline, updatePanel])
 
   const textStyle: React.CSSProperties = {
     width: '100%',
@@ -51,11 +71,6 @@ export function TextPanel({ panel, isHeadline = false, isEditing = false }: Text
     pointerEvents: isEditing ? 'auto' : 'none',
   }
 
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const content = e.currentTarget.innerHTML
-    updatePanel(panel.id, isHeadline ? { headline: content } : { text: content })
-  }
-
   return (
     <div
       ref={ref}
@@ -64,7 +79,6 @@ export function TextPanel({ panel, isHeadline = false, isEditing = false }: Text
       suppressContentEditableWarning
       onInput={handleInput}
       style={textStyle}
-      dangerouslySetInnerHTML={{ __html: text }}
     />
   )
-}
+})

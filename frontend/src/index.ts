@@ -48,7 +48,6 @@ export type { BookStudioClient, RestClientConfig } from './api/restClient'
 // ──── 스토어 ────
 export { useEditorStore } from './stores/editorStore'
 export { useHistoryStore } from './stores/historyStore'
-export { useSelectionStore } from './stores/selectionStore'
 
 // ──── 타입 ────
 export type { Book, BookEdition, BookCollaborator } from './types/book'

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useEditorStore } from '../stores/editorStore'
 import { LAYOUT_PRESETS } from '../types/layout'
 import { EditorLayout } from '../components/Editor/EditorLayout'
@@ -17,6 +17,9 @@ export function DevApp() {
     setBook, setEdition, setPages, setPanels, setLayoutConfig,
     pages, activePageId, addPage, addPanel, removePage, edition,
   } = useEditorStore()
+
+  const pageCounterRef = useRef(4)
+  const panelCounterRef = useRef(100)
 
   useEffect(() => {
     const bookId = 'demo-book'
@@ -133,46 +136,8 @@ export function DevApp() {
     ])
   }, [])
 
-  // Keyboard shortcuts
-  const { selectedPanelIds } = useEditorStore.getState()
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const { selectedPanelIds, removePanel, panels, activePageId, addPanel } = useEditorStore.getState()
-
-      // Delete selected panels
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedPanelIds.length > 0) {
-        const target = e.target as HTMLElement
-        if (target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
-        e.preventDefault()
-        selectedPanelIds.forEach((id) => removePanel(id))
-      }
-
-      // Ctrl+C — copy panels
-      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedPanelIds.length > 0) {
-        const allPanels = activePageId ? (panels[activePageId] ?? []) : []
-        const copied = allPanels.filter((p) => selectedPanelIds.includes(p.id))
-        if (copied.length > 0) {
-          clipboardRef.current = copied.map((p) => ({ ...p }))
-        }
-      }
-
-      // Ctrl+V — paste panels
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && clipboardRef.current.length > 0 && activePageId) {
-        clipboardRef.current.forEach((p) => {
-          const id = `panel-${panelCounter++}`
-          addPanel({ ...p, id, page: activePageId, left: p.left + 20, top: p.top + 20 })
-        })
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  const clipboardRef = React.useRef<Panel[]>([])
-
-  let pageCounter = 4
   const handleAddPage = () => {
-    const id = `page-${pageCounter++}`
+    const id = `page-${pageCounterRef.current++}`
     const newPage: Page = {
       id, short_key: id, user: 'dev', book_edition: 'demo-edition',
       order: pages.length, background_type: 'CLR',
@@ -185,18 +150,18 @@ export function DevApp() {
     setPanels(id, [])
   }
 
-  let panelCounter = 100
   const handleAddPanel = (mediaType: MediaType) => {
     if (!activePageId) return
-    const id = `panel-${panelCounter++}`
+    const id = `panel-${panelCounterRef.current++}`
     const panel: Panel = {
       id, user: 'dev', page: activePageId, media_type: mediaType,
       text: mediaType === 'TXT' ? 'New text' : '',
       headline: mediaType === 'HL' ? 'Heading' : '',
       link_url: '', background_color: 'transparent', background_opacity: 1,
       left: 100 + Math.random() * 200, top: 100 + Math.random() * 200,
-      width: mediaType === 'HL' ? 500 : 300, height: mediaType === 'HL' ? 60 : 200,
-      z_index: panelCounter, padding: 0,
+      width: mediaType === 'HL' ? 400 : mediaType === 'TXT' ? 200 : mediaType === 'EV' ? 500 : mediaType === 'VOD' ? 300 : mediaType === 'SHA' ? 200 : 300,
+      height: mediaType === 'HL' ? 80 : mediaType === 'TXT' ? 80 : mediaType === 'EV' ? 182 : mediaType === 'VOD' ? 165 : mediaType === 'SHA' ? 200 : 200,
+      z_index: panelCounterRef.current, padding: 0,
       font_size: mediaType === 'HL' ? 32 : 16,
       font_family: 'initial', font_style: 'initial', font_weight: 'initial',
       color: '#333', text_align: 'initial', opacity: 1,
@@ -216,19 +181,24 @@ export function DevApp() {
   return (
     <EditorLayout
       topbar={<PositionBar />}
-      appNav={<AppNav />}
-      sidebar={<SidebarTabs />}
-      toolbar={<ToolbarStrip onAddPanel={handleAddPanel} />}
-      canvas={<EditorCanvas />}
-      minibar={
+      iconMenu={
         <>
-          <button className="bs-minibar__btn" title="Copy page">
+          <AppNav />
+          <div className="bs-iconmenu__separator" />
+          <ToolbarStrip onAddPanel={handleAddPanel} />
+        </>
+      }
+      sidebar={<SidebarTabs />}
+      canvas={<EditorCanvas />}
+      collabBar={
+        <>
+          <button className="bs-collabbar__btn" title="Copy page">
             <Copy size={15} strokeWidth={1.5} />
           </button>
-          <button className="bs-minibar__btn" title="Cut page">
+          <button className="bs-collabbar__btn" title="Cut page">
             <Scissors size={15} strokeWidth={1.5} />
           </button>
-          <button className="bs-minibar__btn" title="Paste page">
+          <button className="bs-collabbar__btn" title="Paste page">
             <ClipboardPaste size={15} strokeWidth={1.5} />
           </button>
         </>

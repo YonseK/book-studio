@@ -4,7 +4,6 @@ import {
   Pipette, ChevronDown, ChevronUp, Info, Type,
 } from 'lucide-react'
 import { useEditorStore } from '../../stores/editorStore'
-import { useSelectionStore } from '../../stores/selectionStore'
 import type { Panel } from '../../types/panel'
 
 /** Font bank: display name → CSS font-family value */
@@ -50,7 +49,7 @@ function getFontWeight(label: string): number | undefined {
 
 export function TextBank() {
   const { panels, activePageId, updatePanel } = useEditorStore()
-  const { selectedPanelIds } = useSelectionStore()
+  const selectedPanelIds = useEditorStore((s) => s.selectedPanelIds)
   const activePanels = activePageId ? (panels[activePageId] ?? []) : []
   const panel = activePanels.find((p) => selectedPanelIds.includes(p.id))
 

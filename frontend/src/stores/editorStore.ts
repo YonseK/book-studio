@@ -5,6 +5,7 @@ import type { Page } from '../types/page'
 import type { Panel } from '../types/panel'
 import type { LayoutConfig } from '../types/layout'
 import { LAYOUT_PRESETS } from '../types/layout'
+import { useHistoryStore } from './historyStore'
 
 export interface EditorState {
   // 데이터
@@ -24,9 +25,15 @@ export interface EditorState {
   gridSize: number
   theme: 'light' | 'dark'
   activeSidebarTab: 'file' | 'input' | 'options' | 'share'
-  sidebarContext: 'default' | 'text' | 'image' | 'wallpaper'
+  sidebarContext: 'default' | 'text' | 'image' | 'wallpaper' | 'shape' | 'embed' | 'video'
   editingPanelId: string | null
   isPageListCollapsed: boolean
+  isDesignerCollapsed: boolean
+  accentTheme: 'a' | 'b' | 'c' | 'd'
+  hoveredPanelId: string | null
+  isDragging: boolean
+  isResizing: boolean
+  clipboard: Panel[] | null
 
   // 액션
   setBook: (book: Book) => void
@@ -51,9 +58,19 @@ export interface EditorState {
   setGridSize: (size: number) => void
   setTheme: (theme: 'light' | 'dark') => void
   setActiveSidebarTab: (tab: 'file' | 'input' | 'options' | 'share') => void
-  setSidebarContext: (ctx: 'default' | 'text' | 'image' | 'wallpaper') => void
+  toggleSelectPanel: (panelId: string) => void
+  clearSelection: () => void
+  setHoveredPanel: (id: string | null) => void
+  setDragging: (v: boolean) => void
+  setResizing: (v: boolean) => void
+  copyToClipboard: () => void
+  pasteFromClipboard: () => void
+  deleteSelectedPanels: () => void
+  setSidebarContext: (ctx: 'default' | 'text' | 'image' | 'wallpaper' | 'shape' | 'embed' | 'video') => void
   setEditingPanelId: (id: string | null) => void
   togglePageList: () => void
+  toggleDesigner: () => void
+  setAccentTheme: (theme: 'a' | 'b' | 'c' | 'd') => void
 }
 
 export const useEditorStore = create<EditorState>()(
@@ -75,6 +92,12 @@ export const useEditorStore = create<EditorState>()(
     sidebarContext: 'wallpaper' as const,
     editingPanelId: null,
     isPageListCollapsed: false,
+    isDesignerCollapsed: false,
+    accentTheme: 'b',
+    hoveredPanelId: null,
+    isDragging: false,
+    isResizing: false,
+    clipboard: null,
 
     setBook: (book) => set((s) => { s.book = book }),
     setEdition: (edition) => set((s) => { s.edition = edition }),
@@ -162,8 +185,52 @@ export const useEditorStore = create<EditorState>()(
     setGridSize: (size) => set((s) => { s.gridSize = size }),
     setTheme: (theme) => set((s) => { s.theme = theme }),
     setActiveSidebarTab: (tab) => set((s) => { s.activeSidebarTab = tab }),
+    toggleSelectPanel: (panelId) => set((s) => {
+      if (s.selectedPanelIds.includes(panelId)) {
+        s.selectedPanelIds = s.selectedPanelIds.filter((id) => id !== panelId)
+      } else {
+        s.selectedPanelIds = [...s.selectedPanelIds, panelId]
+      }
+    }),
+    clearSelection: () => set((s) => { s.selectedPanelIds = [] }),
+    setHoveredPanel: (id) => set((s) => { s.hoveredPanelId = id }),
+    setDragging: (v) => set((s) => { s.isDragging = v }),
+    setResizing: (v) => set((s) => { s.isResizing = v }),
+    copyToClipboard: () => set((s) => {
+      const allPanels = s.activePageId ? (s.panels[s.activePageId] ?? []) : []
+      const copied = allPanels.filter((p) => s.selectedPanelIds.includes(p.id))
+      if (copied.length > 0) {
+        s.clipboard = copied.map((p) => ({ ...p }))
+      }
+    }),
+    pasteFromClipboard: () => set((s) => {
+      if (!s.clipboard || !s.activePageId) return
+      const pageId = s.activePageId
+      if (!s.panels[pageId]) s.panels[pageId] = []
+      const newIds: string[] = []
+      s.clipboard.forEach((p) => {
+        const id = `panel-paste-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+        s.panels[pageId].push({ ...p, id, page: pageId, left: p.left + 20, top: p.top + 20 })
+        newIds.push(id)
+      })
+      s.selectedPanelIds = newIds
+    }),
+    deleteSelectedPanels: () => set((s) => {
+      for (const [pageId, panels] of Object.entries(s.panels)) {
+        s.panels[pageId] = panels.filter((p) => !s.selectedPanelIds.includes(p.id))
+      }
+      s.selectedPanelIds = []
+    }),
     setSidebarContext: (ctx) => set((s) => { s.sidebarContext = ctx }),
     setEditingPanelId: (id) => set((s) => { s.editingPanelId = id }),
     togglePageList: () => set((s) => { s.isPageListCollapsed = !s.isPageListCollapsed }),
+    toggleDesigner: () => set((s) => { s.isDesignerCollapsed = !s.isDesignerCollapsed }),
+    setAccentTheme: (theme) => set((s) => { s.accentTheme = theme }),
   })),
 )
+
+/** Call before making data mutations to enable undo */
+export function pushHistory(label: string) {
+  const { pages, panels } = useEditorStore.getState()
+  useHistoryStore.getState().push(label, JSON.stringify({ pages, panels }))
+}

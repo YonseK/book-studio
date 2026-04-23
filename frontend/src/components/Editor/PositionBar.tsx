@@ -1,11 +1,10 @@
 import React from 'react'
 import { useEditorStore } from '../../stores/editorStore'
-import { useSelectionStore } from '../../stores/selectionStore'
 import { Search } from 'lucide-react'
 
 export function PositionBar() {
   const { panels, activePageId } = useEditorStore()
-  const { selectedPanelIds } = useSelectionStore()
+  const selectedPanelIds = useEditorStore((s) => s.selectedPanelIds)
 
   const activePanels = activePageId ? (panels[activePageId] ?? []) : []
   const selectedPanel = selectedPanelIds.length === 1
