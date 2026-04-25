@@ -1,6 +1,6 @@
 import React from 'react'
 import { useEditorStore } from '../../stores/editorStore'
-import { LAYOUT_PRESETS, type LayoutConfig, type LayoutPreset } from '../../types/layout'
+import { LAYOUT_PRESETS } from '../../types/layout'
 
 export function AspectRatioSelector() {
   const { layoutConfig, setLayoutConfig } = useEditorStore()
@@ -8,33 +8,29 @@ export function AspectRatioSelector() {
   const presets = Object.values(LAYOUT_PRESETS).filter((p) => p.preset !== 'BANNER')
 
   return (
-    <div style={{ padding: 12 }}>
-      <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Layout</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {presets.map((preset) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {presets.map((preset) => {
+        const isActive = preset.preset === layoutConfig.preset
+        // 미니 프리뷰: 최대 28px 기준으로 비율 계산
+        const maxDim = 28
+        const ratio = preset.width / preset.height
+        const pw = ratio >= 1 ? maxDim : Math.round(maxDim * ratio)
+        const ph = ratio >= 1 ? Math.round(maxDim / ratio) : maxDim
+
+        return (
           <button
             key={preset.preset}
             onClick={() => setLayoutConfig(preset)}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '6px 8px',
-              fontSize: 12,
-              border: preset.preset === layoutConfig.preset ? '2px solid #4a90d9' : '1px solid #ddd',
-              borderRadius: 4,
-              backgroundColor: preset.preset === layoutConfig.preset ? '#e8f0fe' : '#fff',
-              cursor: 'pointer',
-              textAlign: 'left',
-            }}
+            className={`bs-layout-btn${isActive ? ' bs-layout-btn--active' : ''}`}
           >
-            <span>{preset.label}</span>
-            <span style={{ color: '#999', fontSize: 11 }}>
+            <div className="bs-layout-btn__preview" style={{ width: pw, height: ph }} />
+            <span className="bs-layout-btn__label">{preset.label}</span>
+            <span className="bs-layout-btn__size">
               {preset.width}×{preset.height}
             </span>
           </button>
-        ))}
-      </div>
+        )
+      })}
     </div>
   )
 }
