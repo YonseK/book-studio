@@ -105,7 +105,6 @@
   padding-top: 0;
   background-color: var(--bs-bg-secondary);
   box-shadow: var(--bs-shadow-divider);
-  overflow: hidden;
   z-index: 2;
   transition: width 0.5s, min-width 0.5s;
 }
@@ -201,7 +200,6 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  overflow: hidden;
 }
 
 .bs-sidebar__header {

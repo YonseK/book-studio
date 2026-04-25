@@ -137,7 +137,7 @@ export function SidebarTabs(props: SidebarTabsProps) {
         )}
 
         {openMenu === 'share' && (
-          <div className="bs-sidebar__dropdown" style={{ left: '13em', top: '3.2em' }}>
+          <div className="bs-sidebar__dropdown" style={{ left: '10em', top: '3.2em' }}>
             <ShareMenu
               onClose={() => setOpenMenu(null)}
               onPublish={props.onPublish}
