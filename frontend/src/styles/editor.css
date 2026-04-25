@@ -1445,8 +1445,7 @@
 }
 
 .bs-wallpaper__color-cell--white {
-  outline: 1px solid var(--bs-border);
-  outline-offset: -1px;
+  box-shadow: inset 0 0 0 1px var(--bs-g30);
 }
 
 .bs-wallpaper__color-cell:hover {
@@ -1456,11 +1455,10 @@
 }
 
 .bs-wallpaper__color-cell--active {
-  outline: 3px solid #ffffff;
-  outline-offset: -3px;
+  outline: 1.5px solid #ffffff;
+  outline-offset: 1px;
   z-index: 2;
   position: relative;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
 }
 
 /* ── Shape Bank ── */
