@@ -6,6 +6,34 @@ import type { Panel } from '../types/panel'
 import type { LayoutConfig } from '../types/layout'
 import { LAYOUT_PRESETS } from '../types/layout'
 import { useHistoryStore } from './historyStore'
+import type { SaveCategory } from '../services/saveManager'
+
+// ── Dirty change event system ──
+export interface DirtyChangeEvent {
+  entityType: 'panels' | 'pages' | 'edition'
+  entityId: string
+  changes: Record<string, unknown>
+  category: SaveCategory
+}
+
+type DirtyChangeListener = (event: DirtyChangeEvent) => void
+const dirtyListeners = new Set<DirtyChangeListener>()
+
+export function onDirtyChange(cb: DirtyChangeListener): () => void {
+  dirtyListeners.add(cb)
+  return () => dirtyListeners.delete(cb)
+}
+
+function emitDirty(event: DirtyChangeEvent) {
+  for (const cb of dirtyListeners) cb(event)
+}
+
+// Flag to suppress dirty events for remote (WebSocket) changes
+let suppressDirty = false
+export function withRemoteUpdate(fn: () => void) {
+  suppressDirty = true
+  try { fn() } finally { suppressDirty = false }
+}
 
 export interface EditorState {
   // 데이터
@@ -38,6 +66,7 @@ export interface EditorState {
   // 액션
   setBook: (book: Book) => void
   setEdition: (edition: BookEdition) => void
+  updateEdition: (data: Partial<BookEdition>) => void
   setPages: (pages: Page[]) => void
   setActivePage: (pageId: string) => void
   addPage: (page: Page) => void
@@ -101,6 +130,17 @@ export const useEditorStore = create<EditorState>()(
 
     setBook: (book) => set((s) => { s.book = book }),
     setEdition: (edition) => set((s) => { s.edition = edition }),
+    updateEdition: (data) => {
+      set((s) => {
+        if (s.edition) Object.assign(s.edition, data)
+      })
+      if (!suppressDirty) {
+        const editionId = useEditorStore.getState().edition?.id
+        if (editionId) {
+          emitDirty({ entityType: 'edition', entityId: editionId, changes: data as Record<string, unknown>, category: 'edition' })
+        }
+      }
+    },
 
     setPages: (pages) => set((s) => {
       s.pages = pages
@@ -119,10 +159,15 @@ export const useEditorStore = create<EditorState>()(
       s.activePageId = page.id
     }),
 
-    updatePage: (pageId, data) => set((s) => {
-      const idx = s.pages.findIndex((p) => p.id === pageId)
-      if (idx >= 0) Object.assign(s.pages[idx], data)
-    }),
+    updatePage: (pageId, data) => {
+      set((s) => {
+        const idx = s.pages.findIndex((p) => p.id === pageId)
+        if (idx >= 0) Object.assign(s.pages[idx], data)
+      })
+      if (!suppressDirty) {
+        emitDirty({ entityType: 'pages', entityId: pageId, changes: data as Record<string, unknown>, category: 'page' })
+      }
+    },
 
     removePage: (pageId) => set((s) => {
       s.pages = s.pages.filter((p) => p.id !== pageId)
@@ -152,15 +197,22 @@ export const useEditorStore = create<EditorState>()(
       s.selectedPanelIds = [panel.id]
     }),
 
-    updatePanel: (panelId, data) => set((s) => {
-      for (const panels of Object.values(s.panels)) {
-        const idx = panels.findIndex((p) => p.id === panelId)
-        if (idx >= 0) {
-          Object.assign(panels[idx], data)
-          return
+    updatePanel: (panelId, data) => {
+      set((s) => {
+        for (const panels of Object.values(s.panels)) {
+          const idx = panels.findIndex((p) => p.id === panelId)
+          if (idx >= 0) {
+            Object.assign(panels[idx], data)
+            return
+          }
         }
+      })
+      if (!suppressDirty) {
+        const hasText = 'text' in data || 'headline' in data
+        const category: SaveCategory = hasText ? 'text' : 'panel'
+        emitDirty({ entityType: 'panels', entityId: panelId, changes: data as Record<string, unknown>, category })
       }
-    }),
+    },
 
     removePanel: (panelId) => set((s) => {
       for (const [pageId, panels] of Object.entries(s.panels)) {

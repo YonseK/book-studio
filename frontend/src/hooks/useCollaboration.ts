@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
-import { useEditorStore } from '../stores/editorStore'
+import { useEditorStore, withRemoteUpdate } from '../stores/editorStore'
 
 interface CollaborationUser {
   user_id: string
@@ -39,12 +39,12 @@ export function useCollaboration({ wsUrl, bookId, enabled = true }: UseCollabora
           case 'panel.update':
           case 'panel.move':
             if (data.panel_id && data.changes) {
-              updatePanel(data.panel_id, data.changes)
+              withRemoteUpdate(() => updatePanel(data.panel_id, data.changes))
             }
             break
           case 'page.update':
             if (data.page_id && data.changes) {
-              updatePage(data.page_id, data.changes)
+              withRemoteUpdate(() => updatePage(data.page_id, data.changes))
             }
             break
           case 'user.join':

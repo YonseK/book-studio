@@ -4,14 +4,15 @@ import { useHistoryStore } from '../../stores/historyStore'
 import { LAYOUT_PRESETS, type LayoutPreset } from '../../types/layout'
 import type { BookStudioClient } from '../../api/restClient'
 import type { MediaType } from '../../types/panel'
+import { useAutoSave } from '../../hooks/useAutoSave'
 import { EditorLayout } from './EditorLayout'
 import { EditorCanvas } from './EditorCanvas'
 import { PositionBar } from './PositionBar'
+import { SaveStatus } from './SaveStatus'
 import { AppNav } from '../AppNav/AppNav'
 import { ToolbarStrip } from '../Toolbar/ToolbarStrip'
 import { PageListPanel } from '../PageList/PageListPanel'
-import { EditorOptions } from '../Sidebar/EditorOptions'
-import { AspectRatioSelector } from '../common/AspectRatioSelector'
+import { SidebarTabs } from '../Sidebar/SidebarTabs'
 
 export interface BookStudioEditorProps {
   client: BookStudioClient
@@ -30,6 +31,7 @@ export function BookStudioEditor({ client, bookId, defaultLayout = 'PPTX_WIDE', 
     book, edition, pages, activePageId, addPage, addPanel, removePage,
   } = useEditorStore()
   const { push: pushHistory } = useHistoryStore()
+  const { getManager } = useAutoSave({ client })
 
   // 초기 로드
   useEffect(() => {
@@ -107,7 +109,7 @@ export function BookStudioEditor({ client, bookId, defaultLayout = 'PPTX_WIDE', 
 
   return (
     <EditorLayout
-      topbar={<PositionBar />}
+      topbar={<><PositionBar /><SaveStatus getManager={getManager} /></>}
       iconMenu={
         <>
           <AppNav />
@@ -115,17 +117,7 @@ export function BookStudioEditor({ client, bookId, defaultLayout = 'PPTX_WIDE', 
           <ToolbarStrip onAddPanel={handleAddPanel} />
         </>
       }
-      sidebar={
-        <>
-          <div className="bs-sidebar__header">
-            <span style={{ fontSize: 13, fontWeight: 600 }}>{edition?.title || 'Untitled'}</span>
-          </div>
-          <div className="bs-sidebar__content">
-            <AspectRatioSelector />
-            <EditorOptions />
-          </div>
-        </>
-      }
+      sidebar={<SidebarTabs />}
       canvas={<EditorCanvas />}
       pageList={
         <PageListPanel

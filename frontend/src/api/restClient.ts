@@ -17,14 +17,16 @@ export function restClient(config: RestClientConfig) {
   ): Promise<T> {
     const url = `${baseURL}${path}`
     const token = getToken?.()
+    const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1]
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...customHeaders,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
       ...(options.headers as Record<string, string> ?? {}),
     }
 
-    const res = await fetch(url, { ...options, headers })
+    const res = await fetch(url, { ...options, headers, credentials: 'same-origin' })
     if (!res.ok) {
       const body = await res.text()
       throw new Error(`API Error ${res.status}: ${body}`)

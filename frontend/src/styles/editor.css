@@ -1761,3 +1761,43 @@ input:focus {
   border-image-slice: 1;
   box-shadow: var(--bs-shadow-thumb-inset);
 }
+
+/* ── Save status indicator ── */
+.bs-save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  height: 100%;
+  font-size: 12px;
+  color: var(--bs-text-secondary);
+  transition: opacity 0.3s ease;
+}
+
+.bs-save-status[data-status="saved"] {
+  animation: bs-save-fade 3s ease forwards;
+}
+
+.bs-save-status__text {
+  white-space: nowrap;
+}
+
+.bs-save-status__retry {
+  background: none;
+  border: none;
+  color: var(--bs-danger);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.bs-save-status__retry:hover {
+  background: var(--bs-bg-hover);
+}
+
+@keyframes bs-save-fade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
