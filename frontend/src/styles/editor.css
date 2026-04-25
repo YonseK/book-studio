@@ -486,7 +486,7 @@
   background-color: #ececec;
 }
 
-/* ── Right sidebar wrap (190px = 50 collab + 140 page list) ── */
+/* ── Right sidebar wrap (230px = 50 collab + 180 page list) ── */
 .bs-pagelist-wrap {
   display: flex;
   position: relative;
@@ -615,7 +615,7 @@
 .bs-pagelist__list {
   flex: 1;
   overflow-y: auto;
-  padding: 8px;
+  padding: 8px 6px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -624,7 +624,7 @@
 /* ── Page List Enhanced ── */
 .bs-pagelist__item {
   position: relative;
-  margin: 6px 8px;
+  margin: 4px 4px;
   cursor: pointer;
   border-radius: 4px;
   overflow: visible;
@@ -1567,24 +1567,11 @@
   transition: fill 0.15s, stroke 0.15s;
 }
 
-/* ── Rotation Handle (original moveable style) ── */
-.bs-handle--rotate-line {
-  position: absolute;
-  top: -24px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 20px;
-  background-color: var(--bs-select-outline);
-  box-shadow: 0 0 0 1px var(--bs-select-outline-shadow);
-  pointer-events: none;
-}
-
+/* ── Rotation Handle (replaces top-left resize handle) ── */
 .bs-handle--rotate {
   position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: -13px;
+  left: -13px;
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -1593,6 +1580,10 @@
   box-shadow: 0 0 0 1px var(--bs-handle-shadow);
   cursor: grab;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
 }
 
 .bs-handle--rotate:hover {

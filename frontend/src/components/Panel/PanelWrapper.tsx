@@ -246,7 +246,12 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
 
       {isSelected && (
         <>
-          <div className="bs-handle bs-handle--tl" onMouseDown={(e) => handleResize(e, 'tl')} />
+          <div className="bs-handle--rotate" onMouseDown={handleRotateStart}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a4a4a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 4v6h6" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg>
+          </div>
           <div className="bs-handle bs-handle--tr" onMouseDown={(e) => handleResize(e, 'tr')} />
           <div className="bs-handle bs-handle--bl" onMouseDown={(e) => handleResize(e, 'bl')} />
           <div className="bs-handle bs-handle--br" onMouseDown={(e) => handleResize(e, 'br')} />
@@ -254,9 +259,6 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
           <div className="bs-handle bs-handle--mb" onMouseDown={(e) => handleResize(e, 'b')} />
           <div className="bs-handle bs-handle--ml" onMouseDown={(e) => handleResize(e, 'l')} />
           <div className="bs-handle bs-handle--mr" onMouseDown={(e) => handleResize(e, 'r')} />
-          {/* Rotation handle */}
-          <div className="bs-handle--rotate-line" />
-          <div className="bs-handle--rotate" onMouseDown={handleRotateStart} />
         </>
       )}
 
