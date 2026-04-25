@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { useEditorStore } from '../../stores/editorStore'
 import type { Panel } from '../../types/panel'
+import { ColorPalettePicker } from '../common/ColorPalettePicker'
 
 /** Font bank: display name → CSS font-family value */
 const FONT_BANK: { label: string; family: string }[] = [
@@ -85,15 +86,11 @@ export function TextBank() {
           <div className="bs-textbank__family-name">
             {currentFamily === 'inherit' ? '기본' : currentFamily.split(',')[0]}
           </div>
-          <label className="bs-textbank__color-btn" title="폰트 색상">
-            <Pipette size={16} />
-            <input
-              type="color"
-              value={panel.color === 'initial' ? '#ffffff' : panel.color}
-              onChange={(e) => update({ color: e.target.value })}
-              style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
-            />
-          </label>
+          <ColorPalettePicker
+            value={panel.color === 'initial' ? '#000000' : panel.color}
+            onChange={(c) => update({ color: c })}
+            label="폰트 색상"
+          />
         </div>
       </div>
 
@@ -237,15 +234,11 @@ export function TextBank() {
               <span style={{ fontSize: 12 }}>■</span>
               <span>상자 배경 색상</span>
             </div>
-            <label className="bs-textbank__color-btn" title="배경 색상">
-              <Pipette size={16} />
-              <input
-                type="color"
-                value={panel.background_color === 'transparent' ? '#000000' : panel.background_color}
-                onChange={(e) => update({ background_color: e.target.value })}
-                style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
-              />
-            </label>
+            <ColorPalettePicker
+              value={panel.background_color}
+              onChange={(c) => update({ background_color: c })}
+              label="배경 색상"
+            />
           </div>
 
           {/* Background Opacity */}
@@ -299,15 +292,11 @@ export function TextBank() {
               <span style={{ fontSize: 12 }}>▢</span>
               <span>상자 테두리 색상</span>
             </div>
-            <label className="bs-textbank__color-btn" title="테두리 색상">
-              <Pipette size={16} />
-              <input
-                type="color"
-                value={panel.border_color === 'initial' ? '#000000' : panel.border_color}
-                onChange={(e) => update({ border_color: e.target.value })}
-                style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
-              />
-            </label>
+            <ColorPalettePicker
+              value={panel.border_color === 'initial' ? '#000000' : panel.border_color}
+              onChange={(c) => update({ border_color: c })}
+              label="테두리 색상"
+            />
           </div>
 
           {/* Border Opacity */}

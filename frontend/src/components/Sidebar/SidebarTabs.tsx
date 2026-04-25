@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { File, PenLine, Settings2, Share2 } from 'lucide-react'
+import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { Folder, PenLine, SlidersHorizontal, Share2, X } from 'lucide-react'
 import { useEditorStore } from '../../stores/editorStore'
 import { FileMenu } from './FileMenu'
 import { BookInfoPanel } from './BookInfoPanel'
@@ -9,13 +9,6 @@ import { WallpaperBank } from './WallpaperBank'
 import { TextBank } from './TextBank'
 import { ImageBankPanel } from './ImageBankPanel'
 import { ShapeBankPanel } from './ShapeBankPanel'
-
-const TABS = [
-  { key: 'file' as const, label: '파일', icon: File },
-  { key: 'input' as const, label: '입력', icon: PenLine },
-  { key: 'options' as const, label: '옵션', icon: Settings2 },
-  { key: 'share' as const, label: '공유', icon: Share2 },
-]
 
 interface SidebarTabsProps {
   onNewBook?: () => void
@@ -29,8 +22,12 @@ interface SidebarTabsProps {
 import wallpaperMapping from '../../data/wallpaperMapping.json'
 
 export function SidebarTabs(props: SidebarTabsProps) {
-  const { activeSidebarTab, setActiveSidebarTab, sidebarContext, edition, activePageId, updatePage } = useEditorStore()
-  const [showFileMenu, setShowFileMenu] = useState(false)
+  const { sidebarContext, edition, activePageId, updatePage } = useEditorStore()
+  const [openMenu, setOpenMenu] = useState<'file' | 'insert' | 'share' | null>(null)
+  const [showOptions, setShowOptions] = useState(false)
+  const [showBookInfo, setShowBookInfo] = useState(false)
+
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const wallpapers = useMemo(() =>
     wallpaperMapping.data.map((wp, i) => ({
@@ -42,12 +39,25 @@ export function SidebarTabs(props: SidebarTabsProps) {
     [],
   )
 
-  const handleTabClick = (key: typeof activeSidebarTab) => {
-    if (key === 'file') {
-      setShowFileMenu(!showFileMenu)
+  // Close menus on outside click
+  useEffect(() => {
+    if (!openMenu) return
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenu(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [openMenu])
+
+  const handleMenuClick = (menu: 'file' | 'insert' | 'options' | 'share') => {
+    if (menu === 'options') {
+      setShowOptions(!showOptions)
+      setOpenMenu(null)
     } else {
-      setShowFileMenu(false)
-      setActiveSidebarTab(key)
+      setShowOptions(false)
+      setOpenMenu(openMenu === menu ? null : menu)
     }
   }
 
@@ -55,12 +65,12 @@ export function SidebarTabs(props: SidebarTabsProps) {
   const contextLabel = sidebarContext === 'text' ? '텍스트 편집'
     : sidebarContext === 'image' ? '이미지 편집'
     : sidebarContext === 'shape' ? '도형 편집'
-    : sidebarContext === 'wallpaper' ? '월페이퍼 뱅크'
+    : sidebarContext === 'wallpaper' ? '배경'
     : null
 
   return (
     <>
-      {/* Title */}
+      {/* ── Title ── */}
       <div className="bs-sidebar__header">
         <input
           className="bs-sidebar__title-input"
@@ -74,99 +84,196 @@ export function SidebarTabs(props: SidebarTabsProps) {
         />
       </div>
 
-      {/* Tab bar */}
-      <div className="bs-sidebar__tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            className={`bs-sidebar__tab${activeSidebarTab === tab.key ? ' bs-sidebar__tab--active' : ''}`}
-            onClick={() => handleTabClick(tab.key)}
-          >
-            <tab.icon size={13} strokeWidth={1.5} />
-            <span>{tab.label}</span>
-          </button>
-        ))}
+      {/* ── Menu bar (원본 menus__menubox) ── */}
+      <div className="bs-sidebar__menubox" ref={menuRef}>
+        <button
+          className={`bs-sidebar__menu-btn${openMenu === 'file' ? ' bs-sidebar__menu-btn--active' : ''}`}
+          onClick={() => handleMenuClick('file')}
+        >
+          <Folder size={15} strokeWidth={1.5} />
+          <span>파일</span>
+        </button>
+        <button
+          className={`bs-sidebar__menu-btn${openMenu === 'insert' ? ' bs-sidebar__menu-btn--active' : ''}`}
+          onClick={() => handleMenuClick('insert')}
+        >
+          <PenLine size={15} strokeWidth={1.5} />
+          <span>입력</span>
+        </button>
+        <button
+          className={`bs-sidebar__menu-btn${showOptions ? ' bs-sidebar__menu-btn--active' : ''}`}
+          onClick={() => handleMenuClick('options')}
+        >
+          <SlidersHorizontal size={15} strokeWidth={1.5} />
+          <span>옵션</span>
+        </button>
+        <button
+          className={`bs-sidebar__menu-btn${openMenu === 'share' ? ' bs-sidebar__menu-btn--active' : ''}`}
+          onClick={() => handleMenuClick('share')}
+        >
+          <Share2 size={15} strokeWidth={1.5} />
+          <span>공유</span>
+        </button>
+
+        {/* ── Dropdown menus ── */}
+        {openMenu === 'file' && (
+          <div className="bs-sidebar__dropdown" style={{ left: '0.5em', top: '3.2em' }}>
+            <FileMenu
+              onClose={() => setOpenMenu(null)}
+              onNewBook={props.onNewBook}
+              onOpenLibrary={props.onOpenLibrary}
+              onOpenShared={props.onOpenShared}
+              onPublish={props.onPublish}
+              onClone={props.onClone}
+              onDelete={props.onDelete}
+            />
+          </div>
+        )}
+
+        {openMenu === 'insert' && (
+          <div className="bs-sidebar__dropdown" style={{ left: '5em', top: '3.2em' }}>
+            <InsertMenu onClose={() => setOpenMenu(null)} onBookInfo={() => { setShowBookInfo(true); setOpenMenu(null) }} />
+          </div>
+        )}
+
+        {openMenu === 'share' && (
+          <div className="bs-sidebar__dropdown" style={{ left: '13em', top: '3.2em' }}>
+            <ShareMenu
+              onClose={() => setOpenMenu(null)}
+              onPublish={props.onPublish}
+            />
+          </div>
+        )}
       </div>
 
-      {/* File menu dropdown */}
-      {showFileMenu && (
-        <div style={{ position: 'relative' }}>
-          <FileMenu
-            onClose={() => setShowFileMenu(false)}
-            onNewBook={props.onNewBook}
-            onOpenLibrary={props.onOpenLibrary}
-            onOpenShared={props.onOpenShared}
-            onPublish={props.onPublish}
-            onClone={props.onClone}
-            onDelete={props.onDelete}
-          />
-        </div>
-      )}
-
-      {/* Context-sensitive bank or tab content */}
+      {/* ── Main content area ── */}
       <div className="bs-sidebar__content">
-        {/* Context banks take priority when active */}
-        {sidebarContext === 'text' ? (
-          <>
-            <div style={{
-              fontSize: 12, fontWeight: 600, color: 'var(--bs-accent)',
-              marginBottom: 12, paddingBottom: 8,
-              borderBottom: '1px solid var(--bs-border)',
-            }}>
-              {contextLabel}
+        {/* Options overlay panel (원본 FileOptions) */}
+        {showOptions && (
+          <div className="bs-sidebar__options-overlay">
+            <div className="bs-sidebar__options-header">
+              <span className="bs-sidebar__options-title">
+                <SlidersHorizontal size={13} />
+                <span>옵션</span>
+              </span>
+              <button
+                className="bs-sidebar__options-close"
+                onClick={() => setShowOptions(false)}
+              >
+                <X size={14} />
+              </button>
             </div>
-            <TextBank />
-          </>
-        ) : sidebarContext === 'image' ? (
-          <>
-            <div style={{
-              fontSize: 12, fontWeight: 600, color: 'var(--bs-accent)',
-              marginBottom: 12, paddingBottom: 8,
-              borderBottom: '1px solid var(--bs-border)',
-            }}>
-              {contextLabel}
+            <div className="bs-sidebar__options-body">
+              <EditorOptions />
             </div>
-            <ImageBankPanel />
-          </>
-        ) : sidebarContext === 'shape' ? (
-          <>
-            <div style={{
-              fontSize: 12, fontWeight: 600, color: 'var(--bs-accent)',
-              marginBottom: 12, paddingBottom: 8,
-              borderBottom: '1px solid var(--bs-border)',
-            }}>
-              {contextLabel}
+          </div>
+        )}
+
+        {/* BookInfo overlay panel (원본 입력 → 책 정보) */}
+        {showBookInfo && !showOptions && (
+          <div className="bs-sidebar__options-overlay">
+            <div className="bs-sidebar__options-header">
+              <span className="bs-sidebar__options-title">
+                <PenLine size={13} />
+                <span>책 정보 입력</span>
+              </span>
+              <button
+                className="bs-sidebar__options-close"
+                onClick={() => setShowBookInfo(false)}
+              >
+                <X size={14} />
+              </button>
             </div>
-            <ShapeBankPanel />
-          </>
-        ) : sidebarContext === 'wallpaper' ? (
-          <>
-            <div style={{
-              fontSize: 12, fontWeight: 600, color: 'var(--bs-text-secondary)',
-              marginBottom: 12, paddingBottom: 8,
-              borderBottom: '1px solid var(--bs-border)',
-            }}>
-              {contextLabel}
+            <div className="bs-sidebar__options-body">
+              <BookInfoPanel />
             </div>
-            <WallpaperBank wallpapers={wallpapers} onSelect={(wp) => {
-              if (!activePageId) return
-              const viewUrl = wp.image_view_url || wp.image_url
-              updatePage(activePageId, {
-                background_type: 'WP',
-                wallpaper_image: viewUrl,
-                wallpaper: viewUrl,
-              })
-            }} />
-          </>
-        ) : (
-          /* Default: show tab content */
+          </div>
+        )}
+
+        {/* Context-sensitive controllers + banks */}
+        {!showOptions && !showBookInfo && (
           <>
-            {activeSidebarTab === 'input' && <BookInfoPanel />}
-            {activeSidebarTab === 'options' && <EditorOptions />}
-            {activeSidebarTab === 'share' && <SharePanel />}
+            {sidebarContext === 'text' ? (
+              <>
+                <div className="bs-sidebar__context-label">{contextLabel}</div>
+                <TextBank />
+              </>
+            ) : sidebarContext === 'image' ? (
+              <>
+                <div className="bs-sidebar__context-label">{contextLabel}</div>
+                <ImageBankPanel />
+              </>
+            ) : sidebarContext === 'shape' ? (
+              <>
+                <div className="bs-sidebar__context-label">{contextLabel}</div>
+                <ShapeBankPanel />
+              </>
+            ) : (
+              /* Default: wallpaper/color bank (원본 ItemBanks 기본) */
+              <WallpaperBank wallpapers={wallpapers} onSelect={(wp) => {
+                if (!activePageId) return
+                const viewUrl = wp.image_view_url || wp.image_url
+                updatePage(activePageId, {
+                  background_type: 'WP',
+                  wallpaper_image: viewUrl,
+                  wallpaper: viewUrl,
+                })
+              }} />
+            )}
           </>
         )}
       </div>
     </>
+  )
+}
+
+/* ── Insert Menu (원본 GroupMenuInsert) ── */
+function InsertMenu({ onClose, onBookInfo }: { onClose: () => void; onBookInfo: () => void }) {
+  return (
+    <div className="bs-dropdown" style={{ left: 0, top: 0 }}>
+      <button
+        className="bs-dropdown__item"
+        onClick={onBookInfo}
+      >
+        <PenLine size={14} strokeWidth={1.5} />
+        <span>책 정보 입력</span>
+      </button>
+    </div>
+  )
+}
+
+/* ── Share Menu (원본 GroupMenuShare) ── */
+function ShareMenu({ onClose, onPublish }: { onClose: () => void; onPublish?: () => void }) {
+  const { book } = useEditorStore()
+  const isPublished = book?.is_published
+
+  return (
+    <div className="bs-dropdown" style={{ left: 0, top: 0 }}>
+      {!isPublished ? (
+        <button
+          className="bs-dropdown__item"
+          onClick={() => { onPublish?.(); onClose() }}
+        >
+          <Share2 size={14} strokeWidth={1.5} />
+          <span>내 컬렉션에 공유</span>
+        </button>
+      ) : (
+        <button
+          className="bs-dropdown__item"
+          onClick={() => { onPublish?.(); onClose() }}
+        >
+          <Share2 size={14} strokeWidth={1.5} />
+          <span>게시된 책 버전 업데이트</span>
+        </button>
+      )}
+      <div className="bs-dropdown__separator" />
+      <button
+        className="bs-dropdown__item"
+        onClick={onClose}
+      >
+        <PenLine size={14} strokeWidth={1.5} />
+        <span>공개 범위 수정</span>
+      </button>
+    </div>
   )
 }

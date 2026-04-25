@@ -117,6 +117,8 @@ export function EditorLayout({
         {/* Right sidebar */}
         <div className={`bs-pagelist-wrap${isPageListCollapsed ? ' bs-pagelist-wrap--collapsed' : ''}`}>
           <div className="bs-pagelist-wrap__collab">
+            {collabBar}
+            <div className="bs-collabbar__spacer" />
             <button
               className="bs-collabbar__collapse-btn"
               onClick={togglePageList}
@@ -127,7 +129,6 @@ export function EditorLayout({
                 transition: 'transform 0.5s',
               }} />
             </button>
-            {collabBar}
           </div>
           <div className="bs-pagelist-wrap__list">
             {pageList}

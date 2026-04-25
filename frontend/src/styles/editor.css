@@ -171,7 +171,8 @@
   margin: 6px auto;
 }
 
-.bs-iconmenu__spacer {
+.bs-iconmenu__spacer,
+.bs-collabbar__spacer {
   flex: 1;
 }
 
@@ -231,40 +232,151 @@
   box-shadow: 0 1px 0 var(--bs-accent);
 }
 
-/* ── Sidebar tabs ── */
-.bs-sidebar__tabs {
+/* ── Sidebar menu box (원본 menus__menubox) ── */
+.bs-sidebar__menubox {
   display: flex;
-  height: 36px;
-  box-shadow: inset 0 -1px 0 0 var(--bs-ga40);
+  justify-content: space-between;
+  position: relative;
+  margin: 0 10px 10px 10px;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  box-shadow: inset 0 0 0 1px var(--bs-g30);
+  background-color: rgba(130, 130, 130, 0.05);
 }
 
-.bs-sidebar__tab {
+.bs-sidebar__menu-btn {
+  position: relative;
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: 2px;
+  max-width: 25%;
+  padding: 0.6em 0 0.4em 0;
+  font-size: 0.8em;
+  font-weight: 500;
+  line-height: 1;
   color: var(--bs-text-secondary);
-  border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  border-radius: 0.2em;
+  transition: color 0.15s;
 }
 
-.bs-sidebar__tab:hover {
-  color: var(--bs-text-primary);
-  background-color: var(--bs-bg-hover);
+.bs-sidebar__menu-btn > span {
+  opacity: 0.7;
+  font-size: 0.95em;
 }
 
-.bs-sidebar__tab--active {
+.bs-sidebar__menu-btn > svg {
+  margin-bottom: 0.2em;
+}
+
+.bs-sidebar__menu-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.2em;
+  background-color: var(--bs-g20);
+  transform: scale(0, 1);
+  transition: transform 0.15s;
+}
+
+.bs-sidebar__menu-btn:hover::after {
+  transform: scale(1, 1);
+}
+
+.bs-sidebar__menu-btn--active {
   color: var(--bs-text-primary);
-  border-bottom-color: var(--bs-accent);
+}
+
+.bs-sidebar__menu-btn--active > span {
+  opacity: 1;
+}
+
+/* ── Sidebar dropdown positioning ── */
+.bs-sidebar__dropdown {
+  position: absolute;
+  z-index: 100;
 }
 
 /* ── Sidebar content ── */
 .bs-sidebar__content {
+  position: relative;
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: 10px;
+  min-height: 0;
+}
+
+/* ── Context label (컨텍스트 편집 헤더) ── */
+.bs-sidebar__context-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bs-accent);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bs-border);
+}
+
+/* ── Options overlay panel (원본 FileOptions) ── */
+.bs-sidebar__options-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0.3em;
+  box-shadow: inset 0 0 0 1px var(--bs-g30);
+  background-color: var(--bs-bg-primary);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+}
+
+.bs-sidebar__options-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+  padding: 0 0.8em;
+  box-shadow: inset 0 -1px 0 0 var(--bs-ga30);
+  background-color: rgba(110, 110, 110, 0.05);
+  flex-shrink: 0;
+}
+
+.bs-sidebar__options-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--bs-text-secondary);
+}
+
+.bs-sidebar__options-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: var(--bs-text-secondary);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.bs-sidebar__options-close:hover {
+  color: var(--bs-text-primary);
+  background-color: var(--bs-bg-hover);
+}
+
+.bs-sidebar__options-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2em;
 }
 
 /* ── Toolbar buttons (used inside icon menu) ── */
@@ -776,6 +888,167 @@
   color: var(--bs-accent);
 }
 
+.bs-options__theme-card-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.bs-options__theme-card-preview--dark {
+  background-color: #333;
+}
+
+.bs-options__theme-card-preview--light {
+  background-color: #eee;
+}
+
+/* ── Options status text ── */
+.bs-options__status {
+  font-size: 12px;
+  color: var(--bs-text-secondary);
+}
+
+/* ── Options disabled section ── */
+.bs-options__section--disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── Accent theme selector ── */
+.bs-options__accent-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.bs-options__accent-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--bs-border);
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.bs-options__accent-btn--active {
+  border-color: var(--bs-accent);
+}
+
+.bs-options__accent-swatch {
+  width: 100%;
+  height: 100%;
+}
+
+.bs-options__accent-check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── ColorPalettePicker (원본 ColorBank 재현) ── */
+.bs-colorpicker {
+  position: relative;
+}
+
+.bs-colorpicker__btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background-color: var(--bs-g10);
+  color: var(--bs-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.bs-colorpicker__btn:hover {
+  background-color: var(--bs-g20);
+}
+
+.bs-colorpicker__swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px var(--bs-g30);
+  flex-shrink: 0;
+}
+
+.bs-colorpicker__label {
+  flex: 1;
+  text-align: left;
+}
+
+.bs-colorpicker__palette {
+  margin-top: 6px;
+  padding: 6px;
+  border-radius: 4px;
+  background-color: var(--bs-bg-secondary);
+  box-shadow: inset 0 0 0 1px var(--bs-g30);
+}
+
+.bs-colorpicker__transparent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 24px;
+  padding: 0 4px;
+  margin-bottom: 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--bs-text-secondary);
+  cursor: pointer;
+}
+
+.bs-colorpicker__transparent:hover {
+  background-color: var(--bs-g10);
+}
+
+.bs-colorpicker__row {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 1px;
+  margin-bottom: 1px;
+}
+
+.bs-colorpicker__cell {
+  aspect-ratio: 1;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.bs-colorpicker__cell:hover {
+  transform: scale(1.3);
+  z-index: 1;
+  box-shadow: 0 0 0 1px var(--bs-bg-primary);
+}
+
+.bs-colorpicker__cell--active {
+  box-shadow: inset 0 0 0 2px #fff, 0 0 0 1px var(--bs-k50);
+  transform: scale(1.2);
+  z-index: 1;
+}
+
+.bs-colorpicker__cell--white {
+  box-shadow: inset 0 0 0 1px var(--bs-g30);
+}
+
+.bs-colorpicker__spectrum {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 1px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 /* ── TextBank ── */
 .bs-textbank {
   display: flex;
@@ -1111,10 +1384,14 @@
   font-size: 11px;
   color: var(--bs-text-secondary);
   cursor: pointer;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color 0.2s, border-color 0.2s;
 }
 
 .bs-wallpaper__transparent-btn:hover {
   border-color: var(--bs-border-light);
+  outline-color: var(--bs-accent);
 }
 
 .bs-wallpaper__transparent-checker {
@@ -1131,28 +1408,30 @@
   background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
 }
 
+.bs-wallpaper__color-cell--checker,
+.bs-colorpicker__cell--checker {
+  background-image:
+    linear-gradient(45deg, #666 25%, transparent 25%),
+    linear-gradient(-45deg, #666 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #666 75%),
+    linear-gradient(-45deg, transparent 75%, #666 75%);
+  background-size: 6px 6px;
+  background-position: 0 0, 0 3px, 3px -3px, -3px 0px;
+}
+
+/* 원본 ColorBank 재현: 11열 그리드, 섹션 간 미세 간격 */
 .bs-wallpaper__color-grid {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 2px;
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 0;
 }
 
 .bs-wallpaper__color-grid--11col .bs-wallpaper__color-cell {
-  width: 19px;
-  height: 19px;
-  margin: 1.4px 0.7px;
+  aspect-ratio: 1;
 }
 
 .bs-wallpaper__color-grid--spectrum {
-  margin-top: 6px;
-  border-top: 1px solid var(--bs-border);
-  padding-top: 6px;
-}
-
-.bs-wallpaper__color-grid--spectrum .bs-wallpaper__color-cell {
-  width: 19px;
-  height: 19px;
-  margin: 1.4px 0.7px;
+  margin-top: 4px;
 }
 
 .bs-wallpaper__color-cell {

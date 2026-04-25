@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react'
-import { Pipette, Pentagon } from 'lucide-react'
+import { Pentagon } from 'lucide-react'
 import { useEditorStore } from '../../stores/editorStore'
 import { SHAPE_IDS_ORDERED } from '../Panel/ShapePanel'
 import type { Panel } from '../../types/panel'
+import { ColorPalettePicker } from '../common/ColorPalettePicker'
 
 // Mini SVG renderers for the bank grid (simplified versions)
 const SHAPE_PREVIEWS: Record<number, React.ReactNode> = {
@@ -72,15 +73,11 @@ export function ShapeBankPanel() {
           <div className="bs-textbank__section-label">
             <span>도형 색상</span>
           </div>
-          <label className="bs-textbank__color-btn" title="도형 색상">
-            <Pipette size={16} />
-            <input
-              type="color"
-              value={panel.color === 'initial' || panel.color === '#ffffff' ? '#000000' : panel.color}
-              onChange={(e) => update({ color: e.target.value })}
-              style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
-            />
-          </label>
+          <ColorPalettePicker
+            value={panel.color === 'initial' ? '#000000' : panel.color}
+            onChange={(c) => update({ color: c })}
+            label="도형 색상"
+          />
         </div>
 
         {/* Border width */}
@@ -102,15 +99,11 @@ export function ShapeBankPanel() {
           <div className="bs-textbank__section-label">
             <span>테두리 색상</span>
           </div>
-          <label className="bs-textbank__color-btn" title="테두리 색상">
-            <Pipette size={16} />
-            <input
-              type="color"
-              value={panel.border_color === 'initial' ? '#000000' : panel.border_color}
-              onChange={(e) => update({ border_color: e.target.value })}
-              style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
-            />
-          </label>
+          <ColorPalettePicker
+            value={panel.border_color === 'initial' ? '#000000' : panel.border_color}
+            onChange={(c) => update({ border_color: c })}
+            label="테두리 색상"
+          />
         </div>
 
         {/* Border opacity */}

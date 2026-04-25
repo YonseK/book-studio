@@ -16,7 +16,7 @@ interface WallpaperBankProps {
   onSelect?: (wallpaper: WallpaperItem) => void
 }
 
-/** Flatten spectrum rows into a single array */
+/** Spectrum flat array */
 const SPECTRUM_COLORS: string[] = colorPalette.spectrum.flat()
 
 export function WallpaperBank({ wallpapers, onSelect }: WallpaperBankProps) {
@@ -133,7 +133,7 @@ export function WallpaperBank({ wallpapers, onSelect }: WallpaperBankProps) {
             />
           </div>
 
-          {/* Color label */}
+          {/* Color palette — 원본 배치 재현 */}
           <div className="bs-wallpaper__section">
             <div className="bs-textbank__section-label">
               <Pipette size={11} />
@@ -149,59 +149,49 @@ export function WallpaperBank({ wallpapers, onSelect }: WallpaperBankProps) {
               <span>Transparent</span>
             </button>
 
-            {/* Basic vivid colors (11 cells) */}
+            {/* Vivid (11색) */}
             <div className="bs-wallpaper__color-grid bs-wallpaper__color-grid--11col">
               {colorPalette.basic.slice(1).map((c, i) => (
-                <button
-                  key={`basic-${i}`}
-                  className={`bs-wallpaper__color-cell${activePage?.background_color === c ? ' bs-wallpaper__color-cell--active' : ''}${c === '#ffffff' ? ' bs-wallpaper__color-cell--white' : ''}`}
-                  style={{ backgroundColor: c }}
-                  onClick={() => setBgColor(c)}
-                  title={c}
-                />
+                <ColorCell key={`v-${i}`} color={c} active={activePage?.background_color} onClick={setBgColor} />
               ))}
             </div>
 
-            {/* Pastel colors (11 cells) */}
+            {/* Pastel (11색) */}
             <div className="bs-wallpaper__color-grid bs-wallpaper__color-grid--11col">
               {colorPalette.pastel.map((c, i) => (
-                <button
-                  key={`pastel-${i}`}
-                  className={`bs-wallpaper__color-cell${activePage?.background_color === c ? ' bs-wallpaper__color-cell--active' : ''}`}
-                  style={{ backgroundColor: c }}
-                  onClick={() => setBgColor(c)}
-                  title={c}
-                />
+                <ColorCell key={`p-${i}`} color={c} active={activePage?.background_color} onClick={setBgColor} />
               ))}
             </div>
 
-            {/* Gray scale (22 cells = 2 rows of 11) */}
+            {/* Gray (23색 = 22 + transparent) */}
             <div className="bs-wallpaper__color-grid bs-wallpaper__color-grid--11col">
               {colorPalette.grays.map((c, i) => (
-                <button
-                  key={`gray-${i}`}
-                  className={`bs-wallpaper__color-cell${activePage?.background_color === c ? ' bs-wallpaper__color-cell--active' : ''}`}
-                  style={{ backgroundColor: c }}
-                  onClick={() => setBgColor(c)}
-                  title={c}
-                />
+                <ColorCell key={`g-${i}`} color={c} active={activePage?.background_color} onClick={setBgColor} />
               ))}
             </div>
 
-            {/* Full spectrum grid (65 rows x 11 cols) */}
-            <div className="bs-wallpaper__color-grid bs-wallpaper__color-grid--spectrum">
+            {/* Spectrum (715색) — 원본처럼 간격 없이 바로 이어짐 */}
+            <div className="bs-wallpaper__color-grid bs-wallpaper__color-grid--11col bs-wallpaper__color-grid--spectrum">
               {SPECTRUM_COLORS.map((c, i) => (
-                <button
-                  key={`spec-${i}`}
-                  className={`bs-wallpaper__color-cell${activePage?.background_color === c ? ' bs-wallpaper__color-cell--active' : ''}`}
-                  style={{ backgroundColor: c }}
-                  onClick={() => setBgColor(c)}
-                />
+                <ColorCell key={`s-${i}`} color={c} active={activePage?.background_color} onClick={setBgColor} />
               ))}
             </div>
           </div>
         </>
       )}
     </div>
+  )
+}
+
+function ColorCell({ color: c, active, onClick }: { color: string; active?: string; onClick: (c: string) => void }) {
+  const isActive = active === c
+  const isTransparent = c === 'transparent'
+  const isWhite = c === '#ffffff'
+  return (
+    <button
+      className={`bs-wallpaper__color-cell${isActive ? ' bs-wallpaper__color-cell--active' : ''}${isWhite ? ' bs-wallpaper__color-cell--white' : ''}${isTransparent ? ' bs-wallpaper__color-cell--checker' : ''}`}
+      style={!isTransparent ? { backgroundColor: c } : undefined}
+      onClick={() => onClick(c)}
+    />
   )
 }
