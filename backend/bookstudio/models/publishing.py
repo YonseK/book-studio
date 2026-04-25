@@ -79,7 +79,7 @@ class PubBook(models.Model):
     fields_data = models.JSONField(blank=True, null=True)
 
     published_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = PubBookManager()
 

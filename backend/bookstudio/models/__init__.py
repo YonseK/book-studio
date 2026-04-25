@@ -5,6 +5,8 @@ from bookstudio.models.book import (
     BookModeEnum,
     BookLayoutEnum,
     CollaboratorRoleEnum,
+    LicenseEnum,
+    PrivacyEnum,
 )
 from bookstudio.models.page import (
     Page,
@@ -12,6 +14,8 @@ from bookstudio.models.page import (
     PageMemo,
     PageMemoComment,
     BackgroundTypeEnum,
+    EditTypeEnum,
+    ArrowEnum,
 )
 from bookstudio.models.panel import (
     Panel,
@@ -22,6 +26,8 @@ from bookstudio.models.media import (
     AbstractBasePhoto,
     Photo,
     WallpaperImage,
+    UseWallpaperEnum,
+    WallpaperLayoutEnum,
 )
 from bookstudio.models.media_bank import (
     MediaBank,
@@ -36,6 +42,7 @@ from bookstudio.models.publishing import (
     PubPage,
     PubPanel,
     PubDocument,
+    ProgressStateEnum,
 )
 
 __all__ = [
@@ -46,12 +53,16 @@ __all__ = [
     "BookModeEnum",
     "BookLayoutEnum",
     "CollaboratorRoleEnum",
+    "LicenseEnum",
+    "PrivacyEnum",
     # Page
     "Page",
     "Document",
     "PageMemo",
     "PageMemoComment",
     "BackgroundTypeEnum",
+    "EditTypeEnum",
+    "ArrowEnum",
     # Panel
     "Panel",
     "MediaTypeEnum",
@@ -60,6 +71,8 @@ __all__ = [
     "AbstractBasePhoto",
     "Photo",
     "WallpaperImage",
+    "UseWallpaperEnum",
+    "WallpaperLayoutEnum",
     # MediaBank
     "MediaBank",
     "MediaGallery",
@@ -73,4 +86,5 @@ __all__ = [
     "PubPage",
     "PubPanel",
     "PubDocument",
+    "ProgressStateEnum",
 ]

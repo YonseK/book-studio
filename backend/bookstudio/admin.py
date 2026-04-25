@@ -7,15 +7,19 @@ from bookstudio.models import (
     Page,
     Document,
     PageMemo,
+    PageMemoComment,
     Panel,
     Photo,
     WallpaperImage,
     MediaBank,
     MediaGallery,
+    MediaGalleryMembership,
+    MediaGalleryMember,
     PubItem,
     PubBook,
     PubPage,
     PubPanel,
+    PubDocument,
 )
 
 
@@ -109,3 +113,23 @@ class PubPageAdmin(admin.ModelAdmin):
 @admin.register(PubPanel)
 class PubPanelAdmin(admin.ModelAdmin):
     list_display = ("id", "pub_page", "order")
+
+
+@admin.register(PubDocument)
+class PubDocumentAdmin(admin.ModelAdmin):
+    list_display = ("id", "pub_page", "is_active")
+
+
+@admin.register(PageMemoComment)
+class PageMemoCommentAdmin(admin.ModelAdmin):
+    list_display = ("id", "page_memo", "user", "created_at")
+
+
+@admin.register(MediaGalleryMembership)
+class MediaGalleryMembershipAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "name", "is_active")
+
+
+@admin.register(MediaGalleryMember)
+class MediaGalleryMemberAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "membership", "media_gallery")

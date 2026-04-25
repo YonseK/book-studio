@@ -151,7 +151,7 @@ class Panel(models.Model):
     deleted = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     fields_data = models.JSONField(blank=True, null=True)
 

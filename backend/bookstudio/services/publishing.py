@@ -25,6 +25,13 @@ class PublishService:
         """
         book = edition.book
 
+        # 0) 이미 발행된 Edition인지 확인
+        if hasattr(edition, "pub_book"):
+            raise ValueError(
+                f"BookEdition {edition.pk}은 이미 발행되었습니다. "
+                "새 에디션을 생성한 후 발행하세요."
+            )
+
         # 1) 새 에디터 버전 생성
         new_version = edition.latest_version_number() + 1
         new_edition = BookEdition.objects.create(

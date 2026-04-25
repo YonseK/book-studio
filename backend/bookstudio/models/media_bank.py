@@ -143,7 +143,7 @@ class MediaGalleryMembership(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-updated_at"]
@@ -182,7 +182,7 @@ class MediaGalleryMember(models.Model):
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-updated_at"]

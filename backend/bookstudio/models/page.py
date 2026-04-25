@@ -71,6 +71,7 @@ class Page(models.Model):
     short_key = models.CharField(
         max_length=36,
         default=short_key,
+        unique=True,
         editable=False,
     )
 
@@ -109,7 +110,7 @@ class Page(models.Model):
     deleted = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     fields_data = models.JSONField(blank=True, null=True)
 
@@ -183,7 +184,7 @@ class Document(models.Model):
     is_active = models.BooleanField(default=True)
     fixed = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-updated_at"]
@@ -248,7 +249,7 @@ class PageMemo(models.Model):
     new_memo = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
     fields_data = models.JSONField(blank=True, null=True)
 
     class Meta:
@@ -288,7 +289,7 @@ class PageMemoComment(models.Model):
     comment = models.TextField(blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]

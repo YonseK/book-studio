@@ -165,13 +165,31 @@ class Photo(AbstractBasePhoto):
 # ---------------------------------------------------------------------------
 # WallpaperImage (원본: WallpaperImage)
 # ---------------------------------------------------------------------------
-WALLPAPER_PAD_WIDTH = 768
+from bookstudio.conf import WALLPAPER_PAD_WIDTH
+
+# 크롭 대상 레이아웃별 높이 (PAD_WIDTH=768 기준)
 BOOK_LAYOUT_HEIGHTS = {
     "BOOK": 1086,
     "MBOOK": 960,
     "CD": 768,
-    "CARD": 552,
     "CINEMA": 432,
+}
+
+# BookLayoutEnum → 월페이퍼 크롭 레이아웃 매핑
+# 프론트엔드에서 사용하는 레이아웃을 가장 가까운 비율의 크롭에 대응
+LAYOUT_WALLPAPER_MAP = {
+    "BOOK": "BOOK",         # A4 Portrait → BOOK
+    "MBOOK": "MBOOK",       # Mini Book → MBOOK
+    "CD": "CD",             # Square → CD
+    "CINEMA": "CINEMA",     # 16:9 → CINEMA
+    "PPTX_WIDE": "CINEMA",  # 16:9 → CINEMA
+    "PPTX_STD": "CD",       # 4:3 → CD (가장 가까운 비율)
+    "PPTX_WP": "BOOK",      # 9:16 → BOOK (세로형)
+    "PPTX_SP": "BOOK",      # 3:4 → BOOK (세로형)
+    "A4_LAND": "CINEMA",    # ~1.41:1 → CINEMA (가로형)
+    "CARD": "CINEMA",       # ~1.39:1 → CINEMA
+    "BANNER": None,         # 가변 높이 → 크롭 안 함
+    "CUSTOM": None,         # 사용자 지정 → 크롭 안 함
 }
 
 
@@ -304,11 +322,18 @@ class WallpaperImage(AbstractBasePhoto):
             )
 
     def get_layout_image_url(self, layout, size="view"):
-        """레이아웃에 맞는 이미지 URL 반환."""
-        if layout == "BOOK":
+        """레이아웃에 맞는 이미지 URL 반환.
+
+        LAYOUT_WALLPAPER_MAP을 통해 BookLayout을 크롭 레이아웃에 매핑.
+        BANNER/CUSTOM 등 매핑이 None인 경우 원본 이미지 반환.
+        """
+        crop_layout = LAYOUT_WALLPAPER_MAP.get(layout)
+        if crop_layout is None:
+            return self.get_image_url()
+        if crop_layout == "BOOK":
             field_name = "image_view" if size == "view" else "image_thumb"
         else:
-            field_name = f"{layout.lower()}_image_{size}"
+            field_name = f"{crop_layout.lower()}_image_{size}"
         field = getattr(self, field_name, None)
         if field:
             return field.url

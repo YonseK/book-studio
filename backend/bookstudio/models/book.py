@@ -126,7 +126,7 @@ class Book(models.Model):
     allow_clone = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
     deleted = models.BooleanField(default=False)
 
     class Meta:
@@ -146,10 +146,10 @@ class Book(models.Model):
         self.save(update_fields=["updated_at"])
 
     def get_latest_edition(self):
-        return self.editions.filter(latest=True).first()
+        return self.editions.filter(latest=True, deleted=False).first()
 
     def get_latest_title(self):
-        edition = self.editions.order_by("-created_at").first()
+        edition = self.editions.filter(deleted=False).order_by("-created_at").first()
         return edition.title if edition else ""
 
     def is_scrap(self):
@@ -166,7 +166,7 @@ class Book(models.Model):
 # ---------------------------------------------------------------------------
 class BookEditionManager(models.Manager):
     def get_latest(self, book=None):
-        return self.filter(book=book, latest=True).first()
+        return self.filter(book=book, latest=True, deleted=False).first()
 
 
 class BookEdition(models.Model):
@@ -205,7 +205,7 @@ class BookEdition(models.Model):
     latest = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(null=True, blank=True)
 
     fields_data = models.JSONField(blank=True, null=True)
@@ -236,7 +236,7 @@ class BookEdition(models.Model):
 
     def latest_version_number(self):
         result = BookEdition.objects.filter(
-            book=self.book, is_active=True
+            book=self.book, is_active=True, deleted=False
         ).aggregate(largest=models.Max("version"))["largest"]
         return max(result or 1, 1)
 
@@ -287,6 +287,13 @@ class BookCollaborator(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Book Collaborator"
         verbose_name_plural = "Book Collaborators"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "book"],
+                condition=models.Q(deleted=False),
+                name="unique_active_collaborator",
+            )
+        ]
 
     def __str__(self):
         return f"{self.book.short_key} - {self.user} ({self.role})"
