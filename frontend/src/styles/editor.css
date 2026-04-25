@@ -1014,8 +1014,8 @@
 .bs-colorpicker__row {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
-  gap: 1px;
-  margin-bottom: 1px;
+  gap: 3px;
+  margin-bottom: 3px;
 }
 
 .bs-colorpicker__cell {
@@ -1044,7 +1044,7 @@
 .bs-colorpicker__spectrum {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
-  gap: 1px;
+  gap: 3px;
   max-height: 200px;
   overflow-y: auto;
 }
@@ -1419,11 +1419,12 @@
   background-position: 0 0, 0 3px, 3px -3px, -3px 0px;
 }
 
-/* 원본 ColorBank 재현: 11열 그리드, 섹션 간 미세 간격 */
+/* 원본 ColorBank 재현: 11열 그리드, 셀 간 4px 간격 */
 .bs-wallpaper__color-grid {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
-  gap: 0;
+  gap: 3px;
+  margin-bottom: 3px;
 }
 
 .bs-wallpaper__color-grid--11col .bs-wallpaper__color-cell {
