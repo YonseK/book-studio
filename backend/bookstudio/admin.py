@@ -20,6 +20,11 @@ from bookstudio.models import (
     PubPage,
     PubPanel,
     PubDocument,
+    DesignPattern,
+    DesignPatternSlot,
+    DesignPatternSet,
+    DesignPatternSetMembership,
+    AISession,
 )
 
 
@@ -133,3 +138,43 @@ class MediaGalleryMembershipAdmin(admin.ModelAdmin):
 @admin.register(MediaGalleryMember)
 class MediaGalleryMemberAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "membership", "media_gallery")
+
+
+# ── Design Pattern ──
+
+
+class DesignPatternSlotInline(admin.TabularInline):
+    model = DesignPatternSlot
+    extra = 0
+    fields = ("role", "media_type", "left_pct", "top_pct", "width_pct", "height_pct", "order")
+
+
+@admin.register(DesignPattern)
+class DesignPatternAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "target_layout", "source", "is_active", "usage_count")
+    list_filter = ("category", "target_layout", "source", "is_active")
+    search_fields = ("name",)
+    inlines = [DesignPatternSlotInline]
+
+
+@admin.register(DesignPatternSet)
+class DesignPatternSetAdmin(admin.ModelAdmin):
+    list_display = ("name", "target_layout", "is_active", "created_at")
+    list_filter = ("target_layout", "is_active")
+
+
+@admin.register(DesignPatternSetMembership)
+class DesignPatternSetMembershipAdmin(admin.ModelAdmin):
+    list_display = ("pattern_set", "pattern", "priority")
+    list_filter = ("pattern_set",)
+
+
+# ── AI Session ──
+
+
+@admin.register(AISession)
+class AISessionAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "book", "status", "total_pages", "completed_pages", "created_at")
+    list_filter = ("status",)
+    search_fields = ("prompt",)
+    readonly_fields = ("id", "created_at", "updated_at", "completed_at")

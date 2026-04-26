@@ -23,3 +23,18 @@ SALT = getattr(settings, "BOOKSTUDIO_HMAC_SALT", "bookstudio-invitation")
 
 # User 모델
 USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
+
+# ── AI 설정 ──
+AI_LLM_ADAPTER = getattr(
+    settings, "BOOKSTUDIO_AI_LLM_ADAPTER",
+    "bookstudio.adapters.base.BaseLLMAdapter",
+)
+AI_IMAGE_ADAPTER = getattr(settings, "BOOKSTUDIO_AI_IMAGE_ADAPTER", None)
+AI_TASK_ROUTING = getattr(
+    settings, "BOOKSTUDIO_AI_TASK_ROUTING",
+    {"planning": {}, "writing": {}, "design": {}},
+)
+AI_USE_CELERY = getattr(settings, "BOOKSTUDIO_AI_USE_CELERY", False)
+AI_REDIS_CHANNEL_PREFIX = getattr(
+    settings, "BOOKSTUDIO_AI_REDIS_CHANNEL_PREFIX", "bookstudio:ai"
+)

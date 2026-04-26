@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
-import { Folder, PenLine, SlidersHorizontal, Share2, X } from 'lucide-react'
+import { Folder, PenLine, SlidersHorizontal, Share2, Sparkles, X } from 'lucide-react'
 import { useEditorStore } from '../../stores/editorStore'
+import { useAIStore } from '../../stores/aiStore'
 import { FileMenu } from './FileMenu'
 import { BookInfoPanel } from './BookInfoPanel'
 import { EditorOptions } from './EditorOptions'
@@ -9,8 +10,11 @@ import { WallpaperBank } from './WallpaperBank'
 import { TextBank } from './TextBank'
 import { ImageBankPanel } from './ImageBankPanel'
 import { ShapeBankPanel } from './ShapeBankPanel'
+import { AIChatPanel } from '../AI/AIChatPanel'
+import type { BookStudioClient } from '../../api/restClient'
 
 interface SidebarTabsProps {
+  client: BookStudioClient
   onNewBook?: () => void
   onOpenLibrary?: () => void
   onOpenShared?: () => void
@@ -23,6 +27,7 @@ import wallpaperMapping from '../../data/wallpaperMapping.json'
 
 export function SidebarTabs(props: SidebarTabsProps) {
   const { sidebarContext, edition, activePageId, updatePage } = useEditorStore()
+  const { isOpen: isAIOpen } = useAIStore()
   const [openMenu, setOpenMenu] = useState<'file' | 'insert' | 'share' | null>(null)
   const [showOptions, setShowOptions] = useState(false)
   const [showBookInfo, setShowBookInfo] = useState(false)
@@ -114,6 +119,17 @@ export function SidebarTabs(props: SidebarTabsProps) {
           <Share2 size={15} strokeWidth={1.5} />
           <span>공유</span>
         </button>
+        <button
+          className={`bs-sidebar__menu-btn${isAIOpen ? ' bs-sidebar__menu-btn--active' : ''}`}
+          onClick={() => {
+            useAIStore.getState().setOpen(!isAIOpen)
+            setOpenMenu(null)
+            setShowOptions(false)
+          }}
+        >
+          <Sparkles size={15} strokeWidth={1.5} />
+          <span>AI</span>
+        </button>
 
         {/* ── Dropdown menus ── */}
         {openMenu === 'file' && (
@@ -148,6 +164,10 @@ export function SidebarTabs(props: SidebarTabsProps) {
 
       {/* ── Main content area ── */}
       <div className="bs-sidebar__content">
+        {/* AI panel (최상위 우선) */}
+        {isAIOpen ? (
+          <AIChatPanel client={props.client} />
+        ) : <>
         {/* Options overlay panel (원본 FileOptions) */}
         {showOptions && (
           <div className="bs-sidebar__options-overlay">
@@ -222,6 +242,7 @@ export function SidebarTabs(props: SidebarTabsProps) {
             )}
           </>
         )}
+        </>}
       </div>
     </>
   )

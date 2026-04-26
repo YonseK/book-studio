@@ -126,7 +126,7 @@
 :root {
   --bs-iconmenu-width: 50px;
   --bs-sidebar-width: 280px;
-  --bs-pagelist-width: 140px;
+  --bs-pagelist-width: 180px;
   --bs-collabbar-width: 50px;
   --bs-topbar-height: 50px;
 }

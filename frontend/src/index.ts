@@ -41,6 +41,12 @@ export { PageListPanel } from './components/PageList/PageListPanel'
 export { GridOverlay } from './components/common/GridOverlay'
 export { AspectRatioSelector } from './components/common/AspectRatioSelector'
 
+// ──── AI ────
+export { AIChatPanel } from './components/AI/AIChatPanel'
+export { useAISession } from './hooks/useAISession'
+export { useAIStore } from './stores/aiStore'
+export type { AIPhase, AIPageProgress } from './stores/aiStore'
+
 // ──── API ────
 export { restClient } from './api/restClient'
 export type { BookStudioClient, RestClientConfig } from './api/restClient'
@@ -55,3 +61,4 @@ export type { Page, PageMemo, BackgroundType } from './types/page'
 export type { Panel, MediaType } from './types/panel'
 export type { LayoutPreset, LayoutConfig } from './types/layout'
 export { LAYOUT_PRESETS } from './types/layout'
+export type { AIPlan, AIPagePlan, AISessionResponse, DesignPatternListItem, DesignPatternSet, ColorPalette } from './types/ai'

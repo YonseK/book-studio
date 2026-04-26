@@ -1,6 +1,7 @@
 import type { Book, BookEdition } from '../types/book'
 import type { Page } from '../types/page'
 import type { Panel } from '../types/panel'
+import type { AISessionResponse, DesignPatternListItem, DesignPatternSet } from '../types/ai'
 
 export interface RestClientConfig {
   baseURL: string
@@ -36,6 +37,9 @@ export function restClient(config: RestClientConfig) {
   }
 
   return {
+    // ─── Base URL (SSE EventSource에 필요) ───
+    getBaseURL: () => baseURL,
+
     // ─── Book ───
     books: {
       list: () => request<Book[]>('/books/'),
@@ -115,6 +119,29 @@ export function restClient(config: RestClientConfig) {
     import: {
       html: (editionId: string, html: string) =>
         request<{ pages: Page[] }>('/import/html/', { method: 'POST', body: JSON.stringify({ edition_id: editionId, html }) }),
+    },
+
+    // ─── AI ───
+    ai: {
+      createSession: (data: {
+        book: string; edition: string; prompt: string
+        options?: Record<string, unknown>; pattern_set?: string
+      }) => request<AISessionResponse>('/ai/sessions/', { method: 'POST', body: JSON.stringify(data) }),
+
+      getSession: (id: string) => request<AISessionResponse>(`/ai/sessions/${id}/`),
+
+      approveSession: (id: string, data?: { plan?: unknown; pattern_set_id?: string }) =>
+        request<AISessionResponse>(`/ai/sessions/${id}/approve/`, { method: 'POST', body: JSON.stringify(data || {}) }),
+
+      cancelSession: (id: string) =>
+        request<AISessionResponse>(`/ai/sessions/${id}/cancel/`, { method: 'POST' }),
+
+      listPatterns: (params?: { category?: string; target_layout?: string }) => {
+        const qs = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : ''
+        return request<DesignPatternListItem[]>(`/ai/design-patterns/${qs}`)
+      },
+
+      listPatternSets: () => request<DesignPatternSet[]>('/ai/design-pattern-sets/'),
     },
   }
 }

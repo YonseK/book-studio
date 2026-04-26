@@ -8,4 +8,10 @@ build/
 db.sqlite3
 *.env
 node_modules/
-node_modules/
+
+# Playwright MCP logs
+.playwright-mcp/
+
+# Legacy source / archive
+/src/
+2022-Refactoring---0224--(vue2).zip

@@ -36,6 +36,16 @@ from bookstudio.models.media_bank import (
     MediaGalleryMember,
     MediaBankTypeEnum,
 )
+from bookstudio.models.design_pattern import (
+    DesignPattern,
+    DesignPatternSlot,
+    DesignPatternSet,
+    DesignPatternSetMembership,
+    PatternCategoryEnum,
+    SlotRoleEnum,
+    PatternSourceEnum,
+)
+from bookstudio.models.ai import AISession, AISessionStatusEnum
 from bookstudio.models.item_bank import PubItem
 from bookstudio.models.publishing import (
     PubBook,
@@ -79,6 +89,17 @@ __all__ = [
     "MediaGalleryMembership",
     "MediaGalleryMember",
     "MediaBankTypeEnum",
+    # DesignPattern
+    "DesignPattern",
+    "DesignPatternSlot",
+    "DesignPatternSet",
+    "DesignPatternSetMembership",
+    "PatternCategoryEnum",
+    "SlotRoleEnum",
+    "PatternSourceEnum",
+    # AI
+    "AISession",
+    "AISessionStatusEnum",
     # ItemBank
     "PubItem",
     # Publishing

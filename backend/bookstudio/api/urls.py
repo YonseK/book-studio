@@ -20,6 +20,13 @@ from bookstudio.api.views.media import (
     MediaGalleryViewSet,
     PubItemViewSet,
 )
+from bookstudio.api.views.ai import (
+    DesignPatternViewSet,
+    DesignPatternSetViewSet,
+    DesignPatternSlotViewSet,
+    AISessionViewSet,
+)
+from bookstudio.api.views.ai_stream import ai_session_stream
 from bookstudio.api.views.export import (
     html_import_view,
     html_export_page_view,
@@ -59,6 +66,15 @@ page_router.register(r"memos", PageMemoViewSet, basename="page-memo")
 memo_router = DefaultRouter()
 memo_router.register(r"comments", PageMemoCommentViewSet, basename="memo-comment")
 
+# ──── AI namespace ────
+ai_router = DefaultRouter()
+ai_router.register(r"design-patterns", DesignPatternViewSet, basename="design-pattern")
+ai_router.register(r"design-pattern-sets", DesignPatternSetViewSet, basename="design-pattern-set")
+ai_router.register(r"sessions", AISessionViewSet, basename="ai-session")
+
+ai_slot_router = DefaultRouter()
+ai_slot_router.register(r"slots", DesignPatternSlotViewSet, basename="pattern-slot")
+
 urlpatterns = [
     path("", include(router.urls)),
     path(
@@ -81,6 +97,17 @@ urlpatterns = [
     path("import/html/", html_import_view, name="html-import"),
     path("export/html/page/<str:page_pk>/", html_export_page_view, name="html-export-page"),
     path("export/html/edition/<str:edition_pk>/", html_export_book_view, name="html-export-book"),
+    # ──── AI ────
+    path("ai/", include((ai_router.urls, "ai"))),
+    path(
+        "ai/design-patterns/<str:pattern_pk>/",
+        include((ai_slot_router.urls, "pattern-slot-nested")),
+    ),
+    path(
+        "ai/sessions/<str:session_id>/stream/",
+        ai_session_stream,
+        name="ai-session-stream",
+    ),
     # ──── PDF Export ────
     path("export/pdf/page/<str:page_pk>/", pdf_export_page_view, name="pdf-export-page"),
     path("export/pdf/book/<str:pub_book_pk>/", pdf_export_book_view, name="pdf-export-book"),

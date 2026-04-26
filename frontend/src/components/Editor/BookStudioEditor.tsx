@@ -117,7 +117,7 @@ export function BookStudioEditor({ client, bookId, defaultLayout = 'PPTX_WIDE', 
           <ToolbarStrip onAddPanel={handleAddPanel} />
         </>
       }
-      sidebar={<SidebarTabs />}
+      sidebar={<SidebarTabs client={client} />}
       canvas={<EditorCanvas />}
       pageList={
         <PageListPanel

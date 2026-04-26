@@ -1,5 +1,6 @@
 import React, { useRef, useCallback, type WheelEvent, type MouseEvent } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
+import { useAIStore } from '../../stores/aiStore'
 import { PanelWrapper } from '../Panel/PanelWrapper'
 import { GridOverlay } from '../common/GridOverlay'
 import { GuideLines } from '../common/GuideLines'
@@ -7,6 +8,7 @@ import { GuideLines } from '../common/GuideLines'
 export function EditorCanvas() {
   const { layoutConfig, zoom, setZoom, activePageId, panels, pages, showGrid, gridSize } =
     useEditorStore()
+  const { phase, generatingPageIndex, progress } = useAIStore()
   const clearSelection = useEditorStore((s) => s.clearSelection)
   const setSidebarContext = useEditorStore((s) => s.setSidebarContext)
   const setEditingPanelId = useEditorStore((s) => s.setEditingPanelId)
@@ -89,6 +91,14 @@ export function EditorCanvas() {
           .map((panel) => (
             <PanelWrapper key={panel.id} panel={panel} />
           ))}
+        {/* AI 생성 중 오버레이 */}
+        {phase === 'generating' && generatingPageIndex !== null &&
+          progress.find((p) => p.index === generatingPageIndex)?.pageId === activePageId && (
+          <div className="bs-canvas__ai-overlay">
+            <div className="bs-ai__spinner" />
+            <span>AI가 이 페이지를 만들고 있습니다...</span>
+          </div>
+        )}
       </div>
     </div>
   )

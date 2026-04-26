@@ -8,8 +8,12 @@ import { AppNav } from '../components/AppNav/AppNav'
 import { ToolbarStrip } from '../components/Toolbar/ToolbarStrip'
 import { PageListPanel } from '../components/PageList/PageListPanel'
 import { SidebarTabs } from '../components/Sidebar/SidebarTabs'
+import { restClient } from '../api/restClient'
 import { Copy, Scissors, ClipboardPaste } from 'lucide-react'
 import type { MediaType, Panel } from '../types/panel'
+
+// DevApp용 더미 클라이언트 (오프라인, API 호출 안 함)
+const devClient = restClient({ baseURL: '/api/studio' })
 import type { Page } from '../types/page'
 
 export function DevApp() {
@@ -188,7 +192,7 @@ export function DevApp() {
           <ToolbarStrip onAddPanel={handleAddPanel} />
         </>
       }
-      sidebar={<SidebarTabs />}
+      sidebar={<SidebarTabs client={devClient} />}
       canvas={<EditorCanvas />}
       collabBar={
         <>

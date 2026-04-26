@@ -27,13 +27,17 @@ const client = restClient({ baseURL: '/api/studio' })
 BOOKSTUDIO/
 ├── backend/                  # Django 패키지 (pip install)
 │   ├── bookstudio/
-│   │   ├── models/           # Book → BookEdition → Page → Panel/Document
+│   │   ├── models/           # Book → BookEdition → Page → Panel/Document + DesignPattern + AISession
 │   │   ├── services/         # 클론, 발행, 권한, 레이아웃, 렌더링, 내보내기
+│   │   │   ├── pattern_applicator.py  # DesignPattern → Page+Panel 변환
+│   │   │   └── ai/           # AI 파이프라인 (planner, writer, designer, orchestrator)
+│   │   ├── adapters/         # LLM 어댑터 추상 인터페이스 + 팩토리
 │   │   ├── api/
-│   │   │   ├── views/        # DRF ViewSets (중첩 라우터)
+│   │   │   ├── views/        # DRF ViewSets (중첩 라우터) + AI ViewSets + SSE 스트리밍
 │   │   │   └── serializers/  # 모델별 다중 시리얼라이저
+│   │   ├── tasks.py          # Celery 태스크 (AI 생성)
 │   │   ├── consumers.py      # WebSocket 실시간 협업
-│   │   ├── conf.py           # 앱 설정
+│   │   ├── conf.py           # 앱 설정 (+ AI LLM/Celery 설정)
 │   │   └── admin.py
 │   └── tests/                # pytest + SQLite
 ├── frontend/                 # React 패키지 (@bookstudio/react)
@@ -42,16 +46,17 @@ BOOKSTUDIO/
 │   │   │   ├── Editor/       # BookStudioEditor, EditorCanvas, EditorLayout, SaveStatus
 │   │   │   ├── Panel/        # PanelWrapper, TextPanel, ImagePanel, ShapePanel, VideoPanel, EmbedPanel
 │   │   │   ├── Sidebar/      # SidebarTabs, WallpaperBank, EditorOptions, SharePanel 등
+│   │   │   ├── AI/           # AIChatPanel, AIPromptInput, AIPlanReview, AIGenerationProgress
 │   │   │   ├── Toolbar/      # ToolbarStrip
 │   │   │   ├── PageList/     # PageListPanel
 │   │   │   ├── Viewer/       # BookViewer (읽기 전용)
 │   │   │   └── common/       # GridOverlay, ColorPalettePicker, AspectRatioSelector
-│   │   ├── stores/           # Zustand (editorStore, historyStore)
-│   │   ├── hooks/            # useAutoSave, useCollaboration
+│   │   ├── stores/           # Zustand (editorStore, historyStore, aiStore)
+│   │   ├── hooks/            # useAutoSave, useCollaboration, useAISession
 │   │   ├── services/         # SaveManager (디바운스 자동 저장)
 │   │   ├── api/              # restClient (Fetch 기반 REST)
-│   │   ├── types/            # Book, Page, Panel, Layout 타입
-│   │   ├── styles/           # CSS (variables, editor, reset, fonts)
+│   │   ├── types/            # Book, Page, Panel, Layout, AI 타입
+│   │   ├── styles/           # CSS (variables, editor, reset, fonts, ai)
 │   │   └── dev/              # DevApp (오프라인 UI), DevApiApp (백엔드 연동 테스트)
 │   ├── index.ts              # 패키지 export
 │   └── vite.config.ts        # 라이브러리 빌드 (build.lib)
@@ -70,6 +75,12 @@ Book (사용자별, soft delete)
      └─ Page (순서, 배경색/배경 이미지, soft delete)
          ├─ Panel (60+ 스타일 필드, 미디어 타입별 분기)
          └─ Document (1:1, WYSIWYG 텍스트 콘텐츠)
+
+DesignPatternSet (테마별 패턴 묶음)
+ └─ DesignPattern (페이지 레이아웃 템플릿, 팔레트, 타이포그래피)
+     └─ DesignPatternSlot (상대좌표 %, 역할, 스타일 JSON)
+
+AISession (AI 생성 세션: PLANNING→REVIEW→APPROVED→GENERATING→COMPLETE)
 ```
 
 발행 시 `PublishService.publish(edition)` → 불변 Pub* 복사본 생성 + 새 Edition 생성.
@@ -85,6 +96,10 @@ Book (사용자별, soft delete)
 | `pages/{page_pk}/documents/` | 문서 CRUD |
 | `export/html/page/{id}/` | HTML 내보내기 |
 | `import/html/` | HTML 가져오기 |
+| `ai/design-patterns/` | 디자인 패턴 CRUD + `{id}/slots/` |
+| `ai/design-pattern-sets/` | 패턴 세트 CRUD |
+| `ai/sessions/` | AI 세션 CRUD + `{id}/approve/`, `{id}/cancel/` |
+| `ai/sessions/{id}/stream/` | SSE 스트리밍 |
 
 ### 주요 패턴
 
