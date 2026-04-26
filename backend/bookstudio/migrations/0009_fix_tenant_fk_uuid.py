@@ -1,18 +1,22 @@
-# BookStudio tenant FK — 호스트 앱의 BOOKSTUDIO_TENANT_MODEL 기반.
+# Fix tenant FK: integer → UUID (AIONETRA tenants.Tenant uses UUID PK).
+# 0008에서 AUTH_USER_MODEL(integer) 기반으로 생성된 컬럼을 교체.
 
 import django.db.models.deletion
 from django.db import migrations, models
-
-from bookstudio import conf
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookstudio', '0007_design_pattern_target_layout_choices'),
+        ('bookstudio', '0008_tenant_support'),
+        ('tenants', '0001_initial'),
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='book',
+            name='tenant',
+        ),
         migrations.AddField(
             model_name='book',
             name='tenant',
@@ -21,7 +25,8 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name='bookstudio_books_by_tenant',
-                to=conf.TENANT_MODEL or 'auth.User',
+                to='tenants.tenant',
+                db_index=True,
             ),
         ),
     ]
