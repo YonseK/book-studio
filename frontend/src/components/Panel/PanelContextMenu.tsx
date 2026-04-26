@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Copy, Trash2, ArrowUp, ArrowDown, Lock, Unlock } from 'lucide-react'
 
 interface PanelContextMenuProps {
@@ -28,8 +29,11 @@ export function PanelContextMenu({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [onClose])
 
-  return (
-    <div ref={ref} className="bs-dropdown" style={{ position: 'fixed', left: x, top: y, zIndex: 9999 }}>
+  const adjustedX = Math.min(x, window.innerWidth - 180)
+  const adjustedY = Math.min(y, window.innerHeight - 260)
+
+  return createPortal(
+    <div ref={ref} className="bs-dropdown" style={{ position: 'fixed', left: adjustedX, top: adjustedY, zIndex: 9999 }}>
       <button className="bs-dropdown__item" onClick={() => { onDuplicate?.(); onClose(); }}>
         <Copy size={14} strokeWidth={1.5} />
         <span>복제</span>
@@ -53,6 +57,7 @@ export function PanelContextMenu({
         <Trash2 size={14} strokeWidth={1.5} />
         <span>삭제</span>
       </button>
-    </div>
+    </div>,
+    document.body,
   )
 }

@@ -35,6 +35,16 @@ class PanelViewSet(viewsets.ModelViewSet):
             return PanelUpdateSerializer
         return PanelSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        # 응답은 전체 필드를 포함하는 PanelSerializer로 반환
+        return Response(
+            PanelSerializer(serializer.instance).data,
+            status=status.HTTP_201_CREATED,
+        )
+
     def perform_destroy(self, instance):
         instance.mark_as_deleted()
 

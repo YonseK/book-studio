@@ -53,6 +53,9 @@ export { useAISession } from './hooks/useAISession'
 export { useAIStore } from './stores/aiStore'
 export type { AIPhase, AIPageProgress } from './stores/aiStore'
 
+// ──── Context ────
+export { ClientContext, useClient } from './contexts/ClientContext'
+
 // ──── API ────
 export { restClient } from './api/restClient'
 export type { BookStudioClient, RestClientConfig } from './api/restClient'

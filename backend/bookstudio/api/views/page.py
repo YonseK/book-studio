@@ -43,6 +43,22 @@ class PageViewSet(viewsets.ModelViewSet):
             return PageUpdateSerializer
         return PageSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        edition_pk = self.kwargs.get("edition_pk")
+        if edition_pk:
+            from bookstudio.models.book import BookEdition
+            edition = BookEdition.objects.get(pk=edition_pk)
+            serializer.save(book_edition=edition)
+        else:
+            serializer.save()
+        # 응답은 전체 필드를 포함하는 PageSerializer로 반환
+        return Response(
+            PageSerializer(serializer.instance).data,
+            status=status.HTTP_201_CREATED,
+        )
+
     def perform_destroy(self, instance):
         instance.mark_as_deleted()
 

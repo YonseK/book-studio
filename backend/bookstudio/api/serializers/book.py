@@ -64,10 +64,19 @@ class BookCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        from bookstudio.models.page import Page
+
         user = self.context["request"].user
         book = Book.objects.create(user=user, **validated_data)
-        # 기본 에디션 자동 생성
-        BookEdition.objects.create(book=book, title="Note", version=1, latest=True)
+        # 기본 에디션 + 초기 페이지 자동 생성
+        edition = BookEdition.objects.create(book=book, title="Note", version=1, latest=True)
+        Page.objects.create(
+            book_edition=edition,
+            user=user,
+            order=0,
+            background_type="CLR",
+            background_color="#ffffff",
+        )
         return book
 
 

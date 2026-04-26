@@ -1,5 +1,6 @@
 import React, { useRef, useCallback, useState, type MouseEvent } from 'react'
 import { useEditorStore, pushHistory } from '../../stores/editorStore'
+import { useClient } from '../../contexts/ClientContext'
 import type { Panel } from '../../types/panel'
 import { TextPanel } from './TextPanel'
 import { ImagePanel } from './ImagePanel'
@@ -217,6 +218,7 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
 
   const removePanel = useEditorStore((s) => s.removePanel)
   const addPanel = useEditorStore((s) => s.addPanel)
+  const client = useClient()
 
   const className = `bs-panel${isSelected ? ' bs-panel--selected' : ''}`
 
@@ -267,11 +269,24 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={() => setContextMenu(null)}
-          onDuplicate={() => {
-            const id = `panel-dup-${Date.now()}`
-            addPanel({ ...panel, id, left: panel.left + 20, top: panel.top + 20 })
+          onDuplicate={async () => {
+            try {
+              const cloned = await client.panels.clone(panel.page, panel.id)
+              addPanel({ ...cloned, left: cloned.left + 20, top: cloned.top + 20 })
+            } catch {
+              // fallback: 로컬 복제
+              const id = `panel-dup-${Date.now()}`
+              addPanel({ ...panel, id, left: panel.left + 20, top: panel.top + 20 })
+            }
           }}
-          onDelete={() => removePanel(panel.id)}
+          onDelete={async () => {
+            try {
+              await client.panels.delete(panel.page, panel.id)
+            } catch (e) {
+              console.error('Failed to delete panel:', e)
+            }
+            removePanel(panel.id)
+          }}
           onBringForward={() => updatePanel(panel.id, { z_index: panel.z_index + 1 })}
           onSendBackward={() => updatePanel(panel.id, { z_index: Math.max(0, panel.z_index - 1) })}
           onToggleLock={() => updatePanel(panel.id, { fixed: !panel.fixed })}
