@@ -1,3 +1,9 @@
+// ──── 스타일 (라이브러리 빌드 시 CSS로 추출됨) ────
+import './styles/fonts.css'
+import './styles/variables.css'
+import './styles/editor.css'
+import './styles/ai.css'
+
 // ──── 메인 컴포넌트 ────
 export { BookStudioEditor } from './components/Editor/BookStudioEditor'
 export type { BookStudioEditorProps } from './components/Editor/BookStudioEditor'

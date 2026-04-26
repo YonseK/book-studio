@@ -22,6 +22,7 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
+    cssFileName: 'style',
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime'],
     },

@@ -33,7 +33,12 @@ export function restClient(config: RestClientConfig) {
       throw new Error(`API Error ${res.status}: ${body}`)
     }
     if (res.status === 204) return null as T
-    return res.json()
+    const json = await res.json()
+    // DRF 페이지네이션 응답 자동 unwrap: {results: [...]} → [...]
+    if (json && typeof json === 'object' && Array.isArray(json.results) && 'count' in json) {
+      return json.results as T
+    }
+    return json
   }
 
   return {
