@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from bookstudio import conf
 from bookstudio.models.ai import AISession, AISessionStatusEnum
 from bookstudio.models.design_pattern import (
     DesignPattern,
@@ -80,9 +81,12 @@ class AISessionViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
 
     def get_queryset(self):
-        return AISession.objects.filter(user=self.request.user).select_related(
-            "book", "edition", "pattern_set",
-        )
+        qs = AISession.objects.select_related("book", "edition", "pattern_set")
+        if conf.TENANT_MODEL and hasattr(self.request, "tenant"):
+            qs = qs.filter(book__tenant=self.request.tenant)
+        else:
+            qs = qs.filter(user=self.request.user)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "create":

@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from bookstudio import conf
 from bookstudio.models.page import Page, Document, PageMemo, PageMemoComment
 from bookstudio.api.serializers.page import (
     PageSerializer,
@@ -25,9 +26,12 @@ class PageViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         edition_pk = self.kwargs.get("edition_pk")
         if edition_pk:
-            return Page.objects.filter(
+            qs = Page.objects.filter(
                 book_edition_id=edition_pk, deleted=False
             ).select_related("wallpaper", "wallpaper_image")
+            if conf.TENANT_MODEL and hasattr(self.request, "tenant"):
+                qs = qs.filter(book_edition__book__tenant=self.request.tenant)
+            return qs
         return Page.objects.filter(
             user=self.request.user, deleted=False
         )

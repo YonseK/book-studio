@@ -24,6 +24,11 @@ SALT = getattr(settings, "BOOKSTUDIO_HMAC_SALT", "bookstudio-invitation")
 # User 모델
 USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
+# ── 멀티테넌시 설정 ──
+# None이면 테넌시 비활성화 (단독 사용), 문자열이면 활성화
+# 예: "tenants.Tenant"
+TENANT_MODEL = getattr(settings, "BOOKSTUDIO_TENANT_MODEL", None)
+
 # ── AI 설정 ──
 AI_LLM_ADAPTER = getattr(
     settings, "BOOKSTUDIO_AI_LLM_ADAPTER",

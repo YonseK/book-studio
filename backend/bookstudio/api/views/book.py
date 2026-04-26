@@ -11,9 +11,15 @@ from bookstudio.api.serializers.book import (
     BookCollaboratorSerializer,
     BookCollaboratorCreateSerializer,
 )
+from bookstudio import conf
 from bookstudio.services.cloning import CloneService
 from bookstudio.services.publishing import PublishService
 from bookstudio.services.permissions import can_edit_book, can_view_book, can_manage_book
+
+
+def _has_tenant(request):
+    """테넌시 활성화 여부 + request.tenant 존재 여부."""
+    return conf.TENANT_MODEL and hasattr(request, "tenant")
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -23,9 +29,12 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
 
     def get_queryset(self):
-        return Book.objects.filter(
-            user=self.request.user, deleted=False
-        ).select_related("user")
+        qs = Book.objects.filter(deleted=False).select_related("user")
+        if _has_tenant(self.request):
+            qs = qs.filter(tenant=self.request.tenant)
+        else:
+            qs = qs.filter(user=self.request.user)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -35,7 +44,10 @@ class BookViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        book = serializer.save()
+        extra = {}
+        if _has_tenant(request):
+            extra["tenant"] = request.tenant
+        book = serializer.save(**extra)
         return Response(
             BookSerializer(book).data, status=status.HTTP_201_CREATED
         )
@@ -75,9 +87,12 @@ class BookEditionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         book_pk = self.kwargs.get("book_pk")
-        return BookEdition.objects.filter(
-            book_id=book_pk, book__user=self.request.user, deleted=False
-        )
+        qs = BookEdition.objects.filter(book_id=book_pk, deleted=False)
+        if _has_tenant(self.request):
+            qs = qs.filter(book__tenant=self.request.tenant)
+        else:
+            qs = qs.filter(book__user=self.request.user)
+        return qs
 
     def get_serializer_class(self):
         if self.action in ("update", "partial_update"):
@@ -93,9 +108,10 @@ class BookCollaboratorViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         book_pk = self.kwargs.get("book_pk")
-        return BookCollaborator.objects.filter(
-            book_id=book_pk, deleted=False
-        )
+        qs = BookCollaborator.objects.filter(book_id=book_pk, deleted=False)
+        if _has_tenant(self.request):
+            qs = qs.filter(book__tenant=self.request.tenant)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "create":

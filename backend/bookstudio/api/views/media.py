@@ -1,5 +1,6 @@
 from rest_framework import viewsets, permissions, parsers
 
+from bookstudio import conf
 from bookstudio.models.media import Photo, WallpaperImage
 from bookstudio.models.media_bank import MediaBank, MediaGallery
 from bookstudio.models.item_bank import PubItem
@@ -24,7 +25,12 @@ class PhotoViewSet(viewsets.ModelViewSet):
     serializer_class = PhotoSerializer
 
     def get_queryset(self):
-        return Photo.objects.filter(user=self.request.user, is_active=True)
+        qs = Photo.objects.filter(is_active=True)
+        if conf.TENANT_MODEL and hasattr(self.request, "tenant"):
+            qs = qs.filter(user__tenant_memberships__tenant=self.request.tenant)
+        else:
+            qs = qs.filter(user=self.request.user)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "create":

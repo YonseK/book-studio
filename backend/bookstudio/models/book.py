@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 from bookstudio.utils import uuid_key, short_key
+from bookstudio import conf
 
 
 class BookModeEnum(models.TextChoices):
@@ -120,6 +121,16 @@ class Book(models.Model):
     # 커스텀 비율용 (book_layout=CUSTOM 일 때)
     custom_width = models.PositiveIntegerField(null=True, blank=True)
     custom_height = models.PositiveIntegerField(null=True, blank=True)
+
+    # ── 멀티테넌시 (선택적) ──
+    tenant = models.ForeignKey(
+        conf.TENANT_MODEL or settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="bookstudio_books_by_tenant",
+        null=True,
+        blank=True,
+        db_index=True,
+    )
 
     is_active = models.BooleanField(default=True)
     is_published = models.BooleanField(default=False)
