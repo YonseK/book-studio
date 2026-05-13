@@ -160,6 +160,13 @@ class PatternApplicator:
         if content.fields_data:
             fields_data.update(content.fields_data)
 
+        # CharField 길이 초과 방지: gradient 등 긴 값을 fields_data로 이동
+        for key in ("background_color", "border_color", "color"):
+            val = style_kwargs.get(key, "")
+            if isinstance(val, str) and len(val) > 30:
+                fields_data[f"background_gradient" if key == "background_color" else key] = val
+                style_kwargs.pop(key, None)
+
         return Panel.objects.create(
             page=page,
             user_id=user_id,
