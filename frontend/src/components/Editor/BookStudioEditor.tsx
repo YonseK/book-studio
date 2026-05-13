@@ -60,6 +60,18 @@ export function BookStudioEditor({ client, bookId, defaultLayout = 'PPTX_WIDE', 
     load()
   }, [bookId, client, defaultLayout])
 
+  // Font Awesome CDN (아이콘 패널 렌더링용)
+  useEffect(() => {
+    const FA_ID = 'bs-fontawesome-cdn'
+    if (!document.getElementById(FA_ID)) {
+      const link = document.createElement('link')
+      link.id = FA_ID
+      link.rel = 'stylesheet'
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+      document.head.appendChild(link)
+    }
+  }, [])
+
   // 키보드 단축키
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

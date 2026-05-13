@@ -16,6 +16,7 @@ class SlotContent:
     headline: str = ""
     image_id: str | None = None
     document_html: str | None = None
+    fields_data: dict | None = None  # 확장 속성 (icon_class, badge_text 등)
 
 
 @dataclass
@@ -151,6 +152,14 @@ class PatternApplicator:
             elif slot.role == "subtitle":
                 style_kwargs.setdefault("font_size", max(heading_size - 8, 16))
 
+        # fields_data: slot.style 중 ALLOWED 외 키 + content.fields_data 병합
+        fields_data = {
+            k: v for k, v in (slot.style or {}).items()
+            if k not in self.ALLOWED_STYLE_KEYS
+        }
+        if content.fields_data:
+            fields_data.update(content.fields_data)
+
         return Panel.objects.create(
             page=page,
             user_id=user_id,
@@ -159,6 +168,7 @@ class PatternApplicator:
             headline=content.headline,
             image_id=content.image_id,
             order=panel_order,
+            fields_data=fields_data or None,
             **coords,
             **style_kwargs,
         )

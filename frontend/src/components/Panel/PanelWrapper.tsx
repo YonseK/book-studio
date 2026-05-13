@@ -9,6 +9,73 @@ import { VideoPanel } from './VideoPanel'
 import { EmbedPanel } from './EmbedPanel'
 import { PanelContextMenu } from './PanelContextMenu'
 
+/** fields_data 기반 확장 스타일 (그라디언트, 글로우, backdrop 등). */
+function getExtendedStyle(panel: Panel): React.CSSProperties {
+  const fd = panel.fields_data as Record<string, unknown> | null | undefined
+  if (!fd) return {}
+  const style: React.CSSProperties = {}
+  if (fd.background_gradient) style.background = fd.background_gradient as string
+  if (fd.backdrop_filter) style.backdropFilter = fd.backdrop_filter as string
+  if (fd.border_color && fd.border_width) {
+    style.border = `${fd.border_width}px solid ${fd.border_color}`
+  }
+  return style
+}
+
+/** fields_data.icon_class 가 있으면 Font Awesome 아이콘 렌더링. */
+function IconOverlay({ panel }: { panel: Panel }) {
+  const fd = panel.fields_data as Record<string, unknown> | null | undefined
+  if (!fd?.icon_class) return null
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      pointerEvents: 'none',
+    }}>
+      <i
+        className={fd.icon_class as string}
+        style={{
+          fontSize: (fd.icon_size as number) || 24,
+          color: (fd.icon_color as string) || 'currentColor',
+        }}
+      />
+    </div>
+  )
+}
+
+/** fields_data.badge_text 가 있으면 pill 뱃지 렌더링. */
+function BadgeOverlay({ panel }: { panel: Panel }) {
+  const fd = panel.fields_data as Record<string, unknown> | null | undefined
+  if (!fd?.badge_text) return null
+  const variants: Record<string, { bg: string; color: string; dot: string }> = {
+    success: { bg: 'rgba(34,197,94,0.12)', color: '#4ade80', dot: '#22c55e' },
+    warning: { bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', dot: '#fbbf24' },
+    danger: { bg: 'rgba(239,68,68,0.12)', color: '#f87171', dot: '#ef4444' },
+    info: { bg: 'rgba(99,102,241,0.12)', color: '#818cf8', dot: '#6366f1' },
+  }
+  const v = variants[(fd.badge_variant as string) || 'info'] || variants.info
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      pointerEvents: 'none',
+    }}>
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 8,
+        background: v.bg, borderRadius: 20, padding: '6px 16px',
+        fontSize: 13, fontWeight: 600, color: v.color,
+      }}>
+        {fd.badge_dot !== false && (
+          <span style={{
+            width: 8, height: 8, borderRadius: '50%', background: v.dot,
+          }} />
+        )}
+        {fd.badge_text as string}
+      </span>
+    </div>
+  )
+}
+
 interface PanelWrapperProps {
   panel: Panel
 }
@@ -242,9 +309,12 @@ export function PanelWrapper({ panel }: PanelWrapperProps) {
         backgroundColor: panel.background_color !== 'transparent' ? panel.background_color : undefined,
         padding: panel.padding,
         boxShadow: panel.box_shadow !== 'initial' ? panel.box_shadow : undefined,
+        ...getExtendedStyle(panel),
       }}
     >
       {renderContent()}
+      <IconOverlay panel={panel} />
+      <BadgeOverlay panel={panel} />
 
       {isSelected && (
         <>
