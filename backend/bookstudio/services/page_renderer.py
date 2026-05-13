@@ -89,11 +89,13 @@ def _render_panel(panel: Panel, usage: str) -> str:
     """단일 패널 → HTML."""
     style = _build_panel_style(panel)
     content = _build_panel_content(panel, usage)
+    overlays = _render_fields_data_overlays(panel)
 
     return f"""<div class="bs-panel bs-panel-{panel.media_type.lower()}"
      data-panel-id="{panel.id}"
      style="{style}">
 {content}
+{overlays}
 </div>"""
 
 
@@ -124,6 +126,15 @@ def _build_panel_style(panel: Panel) -> str:
 
     if panel.box_shadow != "initial":
         parts.append(f"box-shadow: {panel.box_shadow};")
+
+    # fields_data 확장 스타일
+    fd = panel.fields_data or {}
+    if fd.get("background_gradient"):
+        parts.append(f"background: {fd['background_gradient']};")
+    if fd.get("backdrop_filter"):
+        parts.append(f"backdrop-filter: {fd['backdrop_filter']};")
+    if fd.get("border_color") and fd.get("border_width"):
+        parts.append(f"border: {fd['border_width']}px solid {fd['border_color']};")
 
     return " ".join(parts)
 
@@ -174,6 +185,46 @@ def _build_panel_content(panel: Panel, usage: str) -> str:
         return '<div class="bs-widget">[Widget]</div>'
 
     return f'<div class="bs-unknown">{panel.text}</div>'
+
+
+def _render_fields_data_overlays(panel: Panel) -> str:
+    """fields_data 기반 아이콘/뱃지 오버레이 HTML."""
+    fd = panel.fields_data or {}
+    parts = []
+
+    # 아이콘 오버레이
+    icon_class = fd.get("icon_class")
+    if icon_class:
+        icon_color = fd.get("icon_color", "currentColor")
+        icon_size = fd.get("icon_size", 24)
+        parts.append(
+            f'<div style="position:absolute;inset:0;display:flex;align-items:center;'
+            f'justify-content:center;pointer-events:none;">'
+            f'<i class="{icon_class}" style="font-size:{icon_size}px;color:{icon_color};"></i>'
+            f'</div>'
+        )
+
+    # 뱃지 오버레이
+    badge_text = fd.get("badge_text")
+    if badge_text:
+        _BADGE_STYLES = {
+            "success": ("rgba(34,197,94,0.12)", "#4ade80", "#22c55e"),
+            "warning": ("rgba(251,191,36,0.12)", "#fbbf24", "#fbbf24"),
+            "danger": ("rgba(239,68,68,0.12)", "#f87171", "#ef4444"),
+            "info": ("rgba(99,102,241,0.12)", "#818cf8", "#6366f1"),
+        }
+        variant = fd.get("badge_variant", "info")
+        bg, color, dot = _BADGE_STYLES.get(variant, _BADGE_STYLES["info"])
+        dot_html = f'<span style="width:8px;height:8px;border-radius:50%;background:{dot};display:inline-block;margin-right:6px;"></span>'
+        parts.append(
+            f'<div style="position:absolute;inset:0;display:flex;align-items:center;'
+            f'justify-content:center;pointer-events:none;">'
+            f'<span style="display:inline-flex;align-items:center;background:{bg};'
+            f'border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;color:{color};">'
+            f'{dot_html}{badge_text}</span></div>'
+        )
+
+    return "\n".join(parts)
 
 
 def _text_style(panel: Panel) -> str:
