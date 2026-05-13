@@ -21,6 +21,14 @@ class PatternCategoryEnum(models.TextChoices):
     QUOTE = "QUOTE", _("Quote / Highlight")
     CLOSING = "CLOSING", _("Closing / CTA")
     BLANK = "BLANK", _("Blank Canvas")
+    # ── 고도화 카테고리 (GenSpark 패턴 참조) ──
+    STATS = "STATS", _("KPI / Statistics")
+    THREE_COLUMN = "THREE_COL", _("Three Column")
+    GRID_CARDS = "GRID_CARDS", _("Card Grid")
+    FLOW = "FLOW", _("Process Flow")
+    TIMELINE = "TIMELINE", _("Timeline / Roadmap")
+    CHART = "CHART", _("Chart Focus")
+    PRICING = "PRICING", _("Pricing Table")
 
 
 class SlotRoleEnum(models.TextChoices):
@@ -32,6 +40,18 @@ class SlotRoleEnum(models.TextChoices):
     ICON = "icon", _("Icon / Shape")
     CAPTION = "caption", _("Caption")
     NUMBER = "number", _("Key Number / Stat")
+    # ── 고도화 역할 ──
+    CARD = "card", _("Card Container")
+    STAT_VALUE = "stat_value", _("Stat Value")
+    STAT_LABEL = "stat_label", _("Stat Label")
+    BADGE = "badge", _("Status Badge")
+    ICON_BOX = "icon_box", _("Icon Box")
+    HEADER = "header", _("Header Bar")
+    FOOTER = "footer", _("Footer Bar")
+    SUMMARY = "summary", _("Summary Bar")
+    FLOW_NODE = "flow_node", _("Flow Node")
+    CHART_AREA = "chart_area", _("Chart Area")
+    PROGRESS = "progress", _("Progress Bar")
 
 
 class PatternSourceEnum(models.TextChoices):

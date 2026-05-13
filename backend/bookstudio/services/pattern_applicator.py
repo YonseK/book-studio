@@ -46,6 +46,16 @@ class PatternApplicator:
         "number": "accent",
         "caption": "text",
         "icon": "primary",
+        "stat_value": "text",
+        "stat_label": "secondary",
+        "badge": "accent",
+        "icon_box": "primary",
+        "header": "text",
+        "footer": "muted",
+        "summary": "text",
+        "flow_node": "text",
+        "chart_area": "text",
+        "progress": "primary",
     }
 
     def apply(
