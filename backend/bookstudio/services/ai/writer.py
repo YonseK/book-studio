@@ -63,6 +63,7 @@ class WriterService:
                 text=s.get("text", ""),
                 headline=s.get("headline", ""),
                 document_html=s.get("document_html"),
+                fields_data=s.get("fields_data"),
             )
             for s in data.get("slots", [])
         ]
